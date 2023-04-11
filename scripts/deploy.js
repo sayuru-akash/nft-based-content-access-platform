@@ -1,5 +1,5 @@
 const main = async () => {
-  const nftContractFactory = await ethers.getContractFactory("knft");
+  const nftContractFactory = await ethers.getContractFactory("NftMarket");
   const nftContract = await nftContractFactory.deploy();
   await nftContract.deployed();
   console.log("Contract deployed to: ", nftContract.address);

@@ -5,7 +5,8 @@
 
 # testing
 /coverage
-/cache/
+/cache
+/artifacts/build-info
 
 # next.js
 /.next/
