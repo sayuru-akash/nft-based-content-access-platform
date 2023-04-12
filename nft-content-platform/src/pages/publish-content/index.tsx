@@ -5,6 +5,8 @@ import { create } from "ipfs-http-client";
 import { Buffer } from "buffer";
 import { useState } from "react";
 import Image from "next/image";
+import axios from "axios";
+import CryptoJS from "crypto-js";
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID;
 const infuraSecret = process.env.NEXT_PUBLIC_INFURA_SECRET;
@@ -38,13 +40,72 @@ export default function PublishContent() {
     }
   };
 
+  const encryptBinary = async (binary: string, walletAddress: string) => {
+    const key = CryptoJS.enc.Hex.parse(walletAddress);
+    const iv = CryptoJS.enc.Hex.parse("abcdef9876543210abcdef9876543210");
+    const encrypted = CryptoJS.AES.encrypt(binary, key, {
+      iv,
+    });
+    return await Promise.resolve(
+      encrypted.ciphertext.toString(CryptoJS.enc.Base64)
+    );
+  };
+
+  const decryptBinary = async (data: string, walletAddress: string) => {
+    const key = CryptoJS.enc.Hex.parse(walletAddress);
+    const iv = CryptoJS.enc.Hex.parse("abcdef9876543210abcdef9876543210");
+    const decrypted = CryptoJS.AES.decrypt(data, key, {
+      iv,
+    });
+    return await Promise.resolve(decrypted.toString(CryptoJS.enc.Utf16));
+  };
+
+  const fileToBinary = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const arrayBuffer = reader.result;
+        const binary = new Uint8Array(arrayBuffer as ArrayBuffer);
+        resolve(binary);
+      };
+      reader.onerror = () => {
+        reject(new Error("Failed to read file"));
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
   async function onFileChange(e: any) {
     const file = e.target.files[0];
     try {
-      const added = await client.add(file);
-      const url = `https://infura-ipfs.io/ipfs/${added.path}`;
-      updateFileUrl(url);
+      if (!file) return;
+
+      const binary: Uint8Array = (await fileToBinary(file)) as Uint8Array;
+      console.log("Binary: ", binary);
+      const encrypted = await encryptBinary(
+        binary.toString(),
+        "0x0000000000000000000000000"
+      );
+      console.log("Binary: ", binary.toString());
+      const encryptedJson = JSON.stringify({ data: encrypted });
+      console.log(encryptedJson);
+      const fileAdded = await client.add(encryptedJson);
+      const url = `https://ipfs.io/ipfs/${fileAdded.path}`;
       console.log("IPFS URI: ", url);
+
+      const uploadedFile = await axios.get(url);
+      const data = uploadedFile.data;
+      console.log("Uploaded File: ", uploadedFile.data);
+
+      const decryptedFile = await decryptBinary(
+        data.data as string,
+        "0x0000000000000000000000000"
+      );
+      console.log("Decrypted File: ", decryptedFile);
+      const blob = new Blob([binary], { type: "image/png" });
+      const urlCreator = window.URL || window.webkitURL;
+      const imageUrl = urlCreator.createObjectURL(blob);
+      updateFileUrl(imageUrl);
     } catch (error) {
       console.log("Error uploading file: ", error);
     }
@@ -202,12 +263,12 @@ export default function PublishContent() {
                   <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
                     <div className="text-center">
                       {fileUrl !== "" && (
-                        <Image
+                        <img
                           src={fileUrl}
                           alt="Uploaded File"
                           width={200}
                           height={200}
-                        />
+                        ></img>
                       )}
                       {fileUrl === "" && (
                         <PhotoIcon
@@ -233,6 +294,52 @@ export default function PublishContent() {
                       </div>
                       <p className="text-xs leading-5 text-gray-600">
                         PNG, JPG, GIF up to 100MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-full">
+                  <label
+                    htmlFor="thumbnail-file"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Upload Thumbnail
+                  </label>
+                  <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                    <div className="text-center">
+                      {fileUrl !== "" && (
+                        <Image
+                          src="https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80"
+                          alt="Uploaded Thumbnail"
+                          width={200}
+                          height={200}
+                        />
+                      )}
+                      {fileUrl === "" && (
+                        <PhotoIcon
+                          className="mx-auto h-12 w-12 text-gray-300"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="img-upload"
+                          className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="img-upload"
+                            name="img-upload"
+                            type="file"
+                            className="sr-only"
+                            // onChange={}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs leading-5 text-gray-600">
+                        PNG, JPG up to 4MB
                       </p>
                     </div>
                   </div>
