@@ -6,7 +6,19 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "infura-ipfs.io" || "images.unsplash.com",
+        hostname: "ipfs.io",
+        port: "",
+        pathname: "/ipfs/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
         port: "",
         pathname: "/**",
       },
