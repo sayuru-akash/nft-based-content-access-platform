@@ -18,7 +18,7 @@ export default function Hero() {
           <div className="mt-10 sm:flex sm:justify-center lg:justify-start lg:w-2/3">
             <div className="rounded-md shadow">
               <Link
-                href="#"
+                href="/publish-content"
                 className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
               >
                 Publish Content
@@ -26,7 +26,7 @@ export default function Hero() {
             </div>
             <div className="mt-3 sm:mt-0 sm:ml-3">
               <Link
-                href="#"
+                href="/learn-more"
                 className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
               >
                 Learn more

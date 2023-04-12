@@ -1,3 +1,4 @@
+import Link from "next/link";
 import NFTCard from "../card";
 
 export default function NFTSlider() {
@@ -36,9 +37,12 @@ export default function NFTSlider() {
             <h2 className="text-lg font-medium text-gray-900">
               Latest Additions
             </h2>
-            <button className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <Link
+              href="/browse-content"
+              className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
               View all
-            </button>
+            </Link>
           </div>
           <div className="flex space-x-6 overflow-x-auto">
             {nftData.map((nft) => (

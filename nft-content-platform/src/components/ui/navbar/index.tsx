@@ -18,19 +18,19 @@ const about = [
   {
     name: "Who We Are",
     description: "Get a better understanding about us",
-    href: "#",
+    href: "/about",
     icon: ChartPieIcon,
   },
   {
     name: "Learn More",
     description: "Learn more about publishing on our platform",
-    href: "#",
+    href: "/learn-more",
     icon: CursorArrowRaysIcon,
   },
 ];
 const callsToAction = [
-  { name: "Watch demo", href: "#", icon: PlayCircleIcon },
-  { name: "Contact us", href: "#", icon: PhoneIcon },
+  { name: "Watch demo", href: "https://youtube.com", icon: PlayCircleIcon },
+  { name: "Contact us", href: "/contact", icon: PhoneIcon },
 ];
 
 function classNames(...classes: string[]) {
@@ -47,7 +47,7 @@ export default function Navbar() {
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
-          <Link href="#" className="-m-1.5 p-1.5">
+          <Link href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
             <img
               className="h-8 w-auto"
@@ -130,19 +130,19 @@ export default function Navbar() {
             </Transition>
           </Popover>
           <Link
-            href="#"
+            href="/browse-content"
             className="text-sm font-semibold leading-6 text-gray-900"
           >
             Browse Content
           </Link>
           <Link
-            href="#"
+            href="/publish-content"
             className="text-sm font-semibold leading-6 text-gray-900"
           >
             Publish Content
           </Link>
           <Link
-            href="#"
+            href="/profile"
             className="text-sm font-semibold leading-6 text-gray-900"
           >
             Profile
@@ -168,8 +168,8 @@ export default function Navbar() {
         <div className="fixed inset-0 z-10" />
         <Dialog.Panel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <Link href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
+            <Link href="/" className="-m-1.5 p-1.5">
+              <span className="sr-only"></span>
               <img
                 className="h-8 w-auto"
                 src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
@@ -217,25 +217,19 @@ export default function Navbar() {
                   )}
                 </Disclosure>
                 <Link
-                  href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                >
-                  Marketplace
-                </Link>
-                <Link
-                  href="#"
+                  href="/browse-content"
                   className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                 >
                   Browse Content
                 </Link>
                 <Link
-                  href="#"
+                  href="/publish-content"
                   className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                 >
                   Publish Content
                 </Link>
                 <Link
-                  href="#"
+                  href="/profile"
                   className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                 >
                   Profile

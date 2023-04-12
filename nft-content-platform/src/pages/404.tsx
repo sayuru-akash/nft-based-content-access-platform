@@ -1,8 +1,11 @@
+import Footer from "@/components/ui/footer";
+import Navbar from "@/components/ui/navbar";
 import Link from "next/link";
 
 export default function FourOhFour() {
   return (
     <>
+      <Navbar />
       <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
         <div className="text-center">
           <p className="text-xl font-bold text-indigo-600">404</p>
@@ -28,6 +31,7 @@ export default function FourOhFour() {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 }
