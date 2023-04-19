@@ -1,33 +1,27 @@
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import NFTCard from "../card";
 
 export default function NFTSlider() {
-  const nftData = [
-    {
-      imageUrl: "https://dummyimage.com/400x400/000/fff",
-      name: "NFT 1",
-      creator: "Creator 1",
-      price: 0.05,
-    },
-    {
-      imageUrl: "https://dummyimage.com/400x400/000/fff",
-      name: "NFT 2",
-      creator: "Creator 2",
-      price: 0.1,
-    },
-    {
-      imageUrl: "https://dummyimage.com/400x400/000/fff",
-      name: "NFT 3",
-      creator: "Creator 3",
-      price: 0.2,
-    },
-    {
-      imageUrl: "https://dummyimage.com/400x400/000/fff",
-      name: "NFT 4",
-      creator: "Creator 4",
-      price: 0.3,
-    },
-  ];
+  const [nftData, setNftData] = useState([]);
+
+  const fetchNFTs = async () => {
+    const data = await fetch("http://localhost:3000/api/get-nfts");
+    const nfts = await data.json();
+
+    for (let i = 0; i < nfts.length; i++) {
+      const nft = nfts[i];
+      const ipfsUri = nft.tokenURI;
+      const data = await fetch(ipfsUri);
+      const json = await data.json();
+      nfts[i].data = json;
+    }
+    setNftData(nfts);
+  };
+
+  useEffect(() => {
+    fetchNFTs();
+  }, []);
 
   return (
     <div className="bg-gray-50">
@@ -45,12 +39,14 @@ export default function NFTSlider() {
             </Link>
           </div>
           <div className="flex space-x-6 overflow-x-auto">
-            {nftData.map((nft) => (
+            {nftData.map((nft: any) => (
               <NFTCard
-                key={nft.name}
-                imageUrl={nft.imageUrl}
-                name={nft.name}
-                creator={nft.creator}
+                key={nft.data.image}
+                name={nft.data.name}
+                description={nft.data.description}
+                author={nft.data.author}
+                imageUrl={nft.data.image}
+                fileUrl={nft.data.file_url}
                 price={nft.price}
               />
             ))}

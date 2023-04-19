@@ -1,20 +1,24 @@
 import { HeartIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
 
 interface NFTCardProps {
-  imageUrl: string;
   name: string;
-  creator: string;
+  description: string;
+  imageUrl: string;
+  fileUrl: string;
+  author: string;
   price: number;
 }
 
 export default function NFTCard({
-  imageUrl,
   name,
-  creator,
+  description,
+  author,
+  imageUrl,
+  fileUrl,
   price,
 }: NFTCardProps) {
   return (
-    <div className="flex-shrink-0 w-80 px-4">
+    <div className="flex-shrink-0 w-80 px-4 bg-white p-3 rounded-xl">
       <div className="relative">
         <img
           className="w-full h-48 rounded-lg object-cover"
@@ -27,7 +31,7 @@ export default function NFTCard({
       </div>
       <div className="mt-4">
         <h3 className="text-gray-900 text-lg font-medium">{name}</h3>
-        <p className="mt-1 text-gray-500 text-sm">{`By ${creator}`}</p>
+        <p className="mt-1 text-gray-500 text-sm">{`By ${author}`}</p>
         <div className="mt-2 flex items-center">
           <div className="text-gray-500 text-sm">{`${price} ETH`}</div>
           <div className="ml-2 flex-shrink-0">
