@@ -28,10 +28,12 @@ export default async function handler(
     const nftsOnSale = await Promise.all(
       getAllNftsOnSale.map(async (nft: any) => {
         const uri = await myContractWithSigner.tokenURI(nft.tokenId);
+        const owner = await myContractWithSigner.ownerOf(nft.tokenId);
         return {
           tokenID: nft.tokenId,
           tokenURI: uri,
           price: ethers.utils.formatEther(nft.price),
+          owner: owner,
         };
       })
     );
