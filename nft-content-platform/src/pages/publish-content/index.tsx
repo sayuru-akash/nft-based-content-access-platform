@@ -202,10 +202,9 @@ export default function PublishContent() {
   return (
     <>
       <Navbar />
-
-      <div className="bg-white  mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-10">
+      <div className="bg-purple-50  mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-10">
         <div className="max-w-7xl mx-auto pb-4">
-          <div className="lg:text-center">
+          <div className="text-start">
             {message && (
               <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                 <div className="flex">
@@ -231,19 +230,34 @@ export default function PublishContent() {
                 </div>
               </div>
             )}
+            <div className="block mb-9">
+              <h1 className="text-3xl font-bold">
+                <span className="text-red-500">P</span>
+                <span className="text-orange-500">u</span>
+                <span className="text-green-500">b</span>
+                <span className="text-blue-500">l</span>
+                <span className="text-indigo-500">i</span>
+                <span className="text-purple-500">s</span>
+                <span className="text-red-500">h</span>
+                <span className="text-orange-500"> </span>
+                <span className="text-orange-500">C</span>
+                <span className="text-red-500">o</span>
+                <span className="text-pink-500">n</span>
+                <span className="text-green-500">t</span>
+                <span className="text-blue-500">e</span>
+                <span className="text-indigo-500">n</span>
+                <span className="text-purple-500">t</span>
+              </h1>
+              <span className="text-sm font-medium text-black">
+                This information will be submitted for saving your content on
+                IPFS and minting access tokens on blockchain so make sure the
+                details are correct.
+              </span>
+            </div>
           </div>
-
           <form>
             <div className="space-y-12">
               <div className="border-b border-gray-900/10 pb-12">
-                <h2 className="text-base font-semibold leading-7 text-gray-900">
-                  Publish Content on IPFS and Mint Access NFTs
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-gray-600">
-                  This information will be submitted for saving your content on
-                  IPFS and minting access tokens on blockchain so make sure the
-                  details are correct.
-                </p>
                 {domLoaded && (
                   <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                     <div className="sm:col-span-4">
@@ -254,10 +268,12 @@ export default function PublishContent() {
                         Wallet Address
                       </label>
                       <div className="mt-2">
-                        <div className="block flex-1 rounded-md shadow-sm ring-1 py-1.5 pl-1 ring-inset ring-gray-300 sm:max-w-md">
+                        <div className="block bg-white flex-1 rounded-md shadow-sm ring-1 py-1.5 pl-1 ring-inset ring-gray-300 sm:max-w-md">
                           <span className="flex select-none items-center pl-3 text-gray-500 sm:text-sm">
                             {address && isConnected ? (
-                              <span className="text-green-500">{address}</span>
+                              <span className="text-green-900 font-thin">
+                                {address}
+                              </span>
                             ) : (
                               <span className="text-red-500">
                                 Not Connected
@@ -290,7 +306,7 @@ export default function PublishContent() {
                       Title
                     </label>
                     <div className="mt-2">
-                      <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                      <div className="flex bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
                         <input
                           type="text"
                           name="title"
@@ -313,7 +329,7 @@ export default function PublishContent() {
                       Author
                     </label>
                     <div className="mt-2">
-                      <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                      <div className="flex bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
                         <input
                           type="text"
                           name="author"
@@ -401,7 +417,7 @@ export default function PublishContent() {
                     >
                       Upload Thumbnail
                     </label>
-                    <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                    <div className="mt-2 bg-white flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
                       <div className="text-center">
                         {thumbnailUrl !== "" && (
                           <Image
@@ -454,7 +470,7 @@ export default function PublishContent() {
                     >
                       Upload Content
                     </label>
-                    <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                    <div className="mt-2 bg-white flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
                       <div className="text-center">
                         {fileUrl !== "" && (
                           <DocumentCheckIcon
@@ -496,7 +512,7 @@ export default function PublishContent() {
             <div className="mt-6 flex items-center justify-between gap-x-6">
               <button
                 type="button"
-                className="text-sm font-semibold leading-6 text-gray-900 border-b-stone-900 border rounded-md px-2 py-1 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="text-sm font-semibold leading-6 text-gray-900 border-b-stone-900 border rounded-md px-2 py-1 shadow-sm bg-white hover:bg-gray-50 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                 Go Back
               </button>
