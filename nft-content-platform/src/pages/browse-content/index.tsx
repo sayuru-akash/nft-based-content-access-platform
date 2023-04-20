@@ -1,8 +1,10 @@
 import NFTCard from "@/components/ui/nft/card";
 import Navbar from "@/components/ui/navbar";
 import Footer from "@/components/ui/footer";
+import { BigNumber } from "ethers";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
+import { ToastContainer } from "react-toastify";
 
 export default function BrowseContent() {
   const [domLoaded, setDomLoaded] = useState(false);
@@ -35,7 +37,7 @@ export default function BrowseContent() {
 
   useEffect(() => {
     fetchNFTs();
-  }, []);
+  }, [address]);
 
   return (
     <>
@@ -57,22 +59,34 @@ export default function BrowseContent() {
                 <span className="text-green-500">c</span>
                 <span className="text-blue-500">e</span>
               </h1>
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-black">
                 Browse Content
               </span>
             </div>
+            <ToastContainer
+              position="top-right"
+              autoClose={10000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
             {domLoaded && (
               <div className="flex justify-center">
                 <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-12 grid-cols-1">
                   {nftData.map((nft: any) => (
                     <NFTCard
-                      key={nft.data.image}
+                      key={BigNumber.from(nft.tokenID)._hex}
+                      id={BigNumber.from(nft.tokenID)._hex}
                       name={nft.data.name}
-                      description={nft.data.description}
                       author={nft.data.author}
                       imageUrl={nft.data.image}
-                      fileUrl={nft.data.file_url}
                       price={nft.price}
+                      owner={nft.owner}
                     />
                   ))}
                 </div>

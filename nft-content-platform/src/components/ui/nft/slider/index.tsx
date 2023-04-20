@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { BigNumber } from "ethers";
 import NFTCard from "../card";
 
 export default function NFTSlider() {
@@ -41,13 +42,13 @@ export default function NFTSlider() {
           <div className="flex space-x-6 overflow-x-auto">
             {nftData.map((nft: any) => (
               <NFTCard
-                key={nft.data.image}
+                key={BigNumber.from(nft.tokenID)._hex}
+                id={BigNumber.from(nft.tokenID)._hex}
                 name={nft.data.name}
-                description={nft.data.description}
                 author={nft.data.author}
                 imageUrl={nft.data.image}
-                fileUrl={nft.data.file_url}
                 price={nft.price}
+                owner={nft.owner}
               />
             ))}
           </div>

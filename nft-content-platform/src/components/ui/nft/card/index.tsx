@@ -1,22 +1,88 @@
-import { HeartIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
+import {
+  ShieldCheckIcon,
+  ArrowUpOnSquareStackIcon,
+  ShoppingCartIcon,
+} from "@heroicons/react/24/outline";
+import { ethers } from "ethers";
+import { useAccount } from "wagmi";
+import { prepareWriteContract, writeContract } from "@wagmi/core";
+import nftMarket from "../../../../../public/NftMarket.json";
+import router from "next/router";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface NFTCardProps {
+  id: string;
   name: string;
-  description: string;
   imageUrl: string;
-  fileUrl: string;
   author: string;
   price: number;
+  owner: string;
 }
 
 export default function NFTCard({
+  id,
   name,
-  description,
   author,
   imageUrl,
-  fileUrl,
   price,
+  owner,
 }: NFTCardProps) {
+  const { address, isConnected } = useAccount();
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  const buyAccessNFT = async () => {
+    if (!isConnected) {
+      console.log("Please connect your wallet");
+      return;
+    }
+
+    const contract = nftMarket;
+
+    const config = await prepareWriteContract({
+      address: "0x82E9A535DE8148505BD1F2E0642193737440b044",
+      functionName: "buyNft",
+      args: [id],
+      overrides: {
+        value: ethers.utils.parseEther(price.toString()),
+        from: address,
+      },
+      abi: contract.abi,
+    });
+
+    try {
+      const boughtNft = await writeContract(config);
+      boughtNft.wait().then((receipt) => {
+        const tx = receipt.transactionHash;
+        console.log("tx", tx);
+      });
+      toast.success("🦄 Content bought successfully!", {
+        position: "top-right",
+        autoClose: 2800,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } catch (error: any) {
+      console.log("error", error);
+    }
+  };
+
+  const handleAccessPath = () => {
+    router.push(`/access/?id=${id}`);
+  };
+
+  toast.onChange((payload) => {
+    if (payload.type === "success") {
+      sleep(3000).then(() => {
+        router.reload();
+      });
+    }
+  });
+
   return (
     <div className="flex-shrink-0 w-80 px-4 bg-white p-3 rounded-xl">
       <div className="relative">
@@ -25,9 +91,14 @@ export default function NFTCard({
           src={imageUrl}
           alt={name}
         />
-        <button className="absolute top-2 right-2 px-2 py-1 bg-white rounded-md shadow">
-          <HeartIcon className="h-5 w-5 text-gray-400" />
-        </button>
+        {owner === address && (
+          <button
+            onClick={handleAccessPath}
+            className="absolute top-2 right-2 px-2 py-1 bg-white rounded-md shadow"
+          >
+            <ArrowUpOnSquareStackIcon className="h-5 w-5 text-gray-400" />
+          </button>
+        )}
       </div>
       <div className="mt-4">
         <h3 className="text-gray-900 text-lg font-medium">{name}</h3>
@@ -41,13 +112,27 @@ export default function NFTCard({
               className="h-5 w-5"
             />
           </div>
-          <button className="ml-auto flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            Buy now
-            <ShoppingCartIcon
-              className="ml-2 -mr-0.5 h-4 w-4"
-              aria-hidden="true"
-            />
-          </button>
+          {owner === address && (
+            <div className="ml-auto flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              Owned
+              <ShieldCheckIcon
+                className="ml-2 -mr-0.5 h-4 w-4"
+                aria-hidden="true"
+              />
+            </div>
+          )}
+          {owner !== address && (
+            <button
+              onClick={buyAccessNFT}
+              className="ml-auto flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Buy now
+              <ShoppingCartIcon
+                className="ml-2 -mr-0.5 h-4 w-4"
+                aria-hidden="true"
+              />
+            </button>
+          )}
         </div>
       </div>
     </div>
