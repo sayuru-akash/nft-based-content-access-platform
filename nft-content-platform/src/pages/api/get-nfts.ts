@@ -11,7 +11,7 @@ export default async function handler(
     const myContractAddress = "0x82E9A535DE8148505BD1F2E0642193737440b044";
 
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://localhost:7545"
+      "http://127.0.0.1:7545"
     );
 
     const myContract = new ethers.Contract(
