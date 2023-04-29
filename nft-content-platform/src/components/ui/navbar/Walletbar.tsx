@@ -41,6 +41,17 @@ function Walletbar() {
       console.log("No compatible wallet found.");
     }
   }, [chainId, isConnected]);
+
+  useEffect(() => {
+    if (window.ethereum) {
+      if (isConnected) {
+        fetch("http://localhost:3010/user/add/" + address)
+          .then((response) => response.json())
+          .catch((error) => console.error(error));
+      }
+    }
+  }, [isConnected, address]);
+
   return (
     <div className="hidden lg:flex lg:flex-1 lg:justify-end">
       {isConnected && chainId != targetChainId && (
