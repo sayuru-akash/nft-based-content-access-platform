@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { XMarkIcon, HashtagIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard" },
@@ -69,10 +70,14 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                         <div>
                           <Menu.Button className="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                             <span className="sr-only">Open user menu</span>
-                            <img
+                            <Image
+                              src={
+                                "https://images.unsplash.com/photo-1586038693164-cb7ee3fb8e2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=80&q=80"
+                              }
+                              alt={"Avatar"}
+                              width={40}
+                              height={40}
                               className="h-8 w-8 rounded-full"
-                              src="https://avatars.githubusercontent.com/u/6587803?v=4"
-                              alt="Avatar"
                             />
                           </Menu.Button>
                         </div>
