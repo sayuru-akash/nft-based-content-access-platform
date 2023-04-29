@@ -80,10 +80,31 @@ export default function PublishContent() {
 
     try {
       const mintedNFT = await writeContract(config);
-      mintedNFT.wait().then((receipt) => {
+      mintedNFT.wait().then(async (receipt) => {
         const tx = receipt.transactionHash;
         console.log("tx", tx);
         setMintedNFTAddress(tx);
+
+        const userID = await fetch("http://localhost:3010/user/add/" + address)
+          .then((response) => response.json())
+          .then((data) => data)
+          .catch((error) => console.error(error));
+
+        const requestOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            image: thumbnailUrl,
+            tokenAddress: tx,
+            title: title,
+            authorId: userID.data.id,
+          }),
+        };
+
+        fetch("http://localhost:3010/content/add", requestOptions)
+          .then((response) => response.json())
+          .then((data) => console.log(data))
+          .catch((error) => console.error(error));
       });
     } catch (error: any) {
       setMessage(error.message);
