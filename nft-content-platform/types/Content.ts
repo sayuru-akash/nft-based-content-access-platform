@@ -5,4 +5,6 @@ export type Content = {
   title: string;
   authorId: string;
   createdOn: string;
+  status: boolean;
+  authorStatus: boolean;
 };

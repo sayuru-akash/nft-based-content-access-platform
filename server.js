@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema({
   wallet: { type: String, required: true, unique: true },
   ownedContent: { type: Number, default: 0 },
   joinedOn: { type: Date, default: Date.now },
+  status: { type: Boolean, default: true },
 });
 const contentSchema = new mongoose.Schema({
   image: { type: String, required: true },
@@ -52,6 +53,7 @@ const contentSchema = new mongoose.Schema({
     required: true,
   },
   createdOn: { type: Date, default: Date.now },
+  status: { type: Boolean, default: false },
 });
 
 const Admin = mongoose.model("Admin", adminSchema);
@@ -64,20 +66,23 @@ app.get("/user/add/:wallet", async (req, res) => {
 
   try {
     const user = await User.findOne({ wallet });
-
     if (user) {
-      res.status(200).json({ message: "User found", data: { id: user._id } });
+      return res
+        .status(200)
+        .json({ message: "User found", data: { id: user._id } });
     } else {
       const newUser = new User({
         wallet,
       });
       const result = await newUser.save();
 
-      res.status(200).json({ message: "User added", data: { id: result._id } });
+      return res
+        .status(200)
+        .json({ message: "User added", data: { id: result._id } });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error adding user" });
+    return res.status(500).json({ message: "Error adding user" });
   }
 });
 
@@ -85,10 +90,10 @@ app.get("/user/add/:wallet", async (req, res) => {
 app.get("/users", async (req, res) => {
   try {
     const users = await User.find();
-    res.status(200).json(users);
+    return res.status(200).json(users);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error getting users" });
+    return res.status(500).json({ message: "Error getting users" });
   }
 });
 
@@ -98,15 +103,16 @@ app.get("/user/:wallet", async (req, res) => {
 
   try {
     const user = await User.findOne({ wallet });
-
     if (user) {
-      res.status(200).json({ message: "User found", data: { id: user._id } });
+      return res
+        .status(200)
+        .json({ message: "User found", data: { id: user._id } });
     } else {
-      res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error getting user" });
+    return res.status(500).json({ message: "Error getting user" });
   }
 });
 
@@ -119,10 +125,43 @@ app.get("/users/count", async (req, res) => {
     const countLast24h = await User.countDocuments({
       joinedOn: { $gte: lastDay },
     });
-    res.status(200).json({ count, countLast24h });
+    return res.status(200).json({ count, countLast24h });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error getting user count" });
+    return res.status(500).json({ message: "Error getting user count" });
+  }
+});
+
+// Ban or unban a user
+app.post("/user/status", async (req, res) => {
+  const { userId, status } = req.body;
+  const user = await User.findOne({ _id: userId });
+  if (user) {
+    if (user.status === status) {
+      return res.status(200).json({ message: "User status unchanged" });
+    } else {
+      user.status = status;
+      await user.save();
+      return res.status(200).json({ message: "User status updated" });
+    }
+  } else {
+    return res.status(404).json({ message: "User not found" });
+  }
+});
+
+// Delete a user by user ID
+app.get("/user/delete/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const user = await User.findByIdAndDelete(userId);
+    if (user) {
+      return res.status(200).json({ message: "User deleted" });
+    } else {
+      return res.status(404).json({ message: "User not found" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error deleting user" });
   }
 });
 
@@ -137,10 +176,10 @@ app.post("/content/add", async (req, res) => {
     const newContent = new Content({ image, tokenAddress, title, authorId });
     const savedContent = await newContent.save();
     await User.findByIdAndUpdate(authorId, { $inc: { ownedContent: 1 } });
-    res.status(200).json({ newContentId: savedContent._id });
+    return res.status(200).json({ newContentId: savedContent._id });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error adding content" });
+    return res.status(500).json({ message: "Error adding content" });
   }
 });
 
@@ -148,10 +187,17 @@ app.post("/content/add", async (req, res) => {
 app.get("/contents", async (req, res) => {
   try {
     const contents = await Content.find();
-    res.status(200).json(contents);
+    const users = await User.find();
+    const contentWithUserStatus = contents.map((content) => {
+      const user = users.find(
+        (user) => user._id.toString() === content.authorId.toString()
+      );
+      return { ...content._doc, authorStatus: user.status };
+    });
+    return res.status(200).json(contentWithUserStatus);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error getting contents" });
+    return res.status(500).json({ message: "Error getting contents" });
   }
 });
 
@@ -164,10 +210,10 @@ app.get("/contents/count", async (req, res) => {
     const countLast24h = await Content.countDocuments({
       createdOn: { $gte: lastDay },
     });
-    res.status(200).json({ count, countLast24h });
+    return res.status(200).json({ count, countLast24h });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error getting content count" });
+    return res.status(500).json({ message: "Error getting content count" });
   }
 });
 
@@ -175,10 +221,27 @@ app.get("/contents/count", async (req, res) => {
 app.get("/contents/sale-count", async (req, res) => {
   try {
     const count = await CONTRACT_INSTANCE.methods.getListedItemsCount().call();
-    res.status(200).json({ count, CONTRACT_ADDRESS });
+    return res.status(200).json({ count, CONTRACT_ADDRESS });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error getting transaction count" });
+    return res.status(500).json({ message: "Error getting transaction count" });
+  }
+});
+
+// Ban or unban a content
+app.post("/content/status", async (req, res) => {
+  const { contentId, status } = req.body;
+  const content = await Content.findOne({ _id: contentId });
+  if (content) {
+    if (content.status === status) {
+      return res.status(200).json({ message: "Content status unchanged" });
+    } else {
+      content.status = status;
+      await content.save();
+      return res.status(200).json({ message: "Content status updated" });
+    }
+  } else {
+    return res.status(404).json({ message: "Content not found" });
   }
 });
 

@@ -4,4 +4,5 @@ export type User = {
   name: string;
   ownedContent: number;
   joinedOn: string;
+  status: boolean;
 };

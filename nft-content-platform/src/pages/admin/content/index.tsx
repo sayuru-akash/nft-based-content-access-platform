@@ -4,6 +4,9 @@ import { Loading } from "@nextui-org/react";
 import { Content } from "../../../../types/Content";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 export default function ContentPage() {
   const [loading, setLoading] = useState(true);
@@ -27,31 +30,127 @@ export default function ContentPage() {
     }
   }, [router]);
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const res = await fetch("http://localhost:3010/contents");
-        const data = await res.json();
-        const formattedContent = data.map((content: Content) => ({
-          ...content,
-          createdOn: new Date(content.createdOn).toLocaleString(),
-        }));
-        setContents(formattedContent);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const fetchContent = async () => {
+    try {
+      const res = await fetch("http://localhost:3010/contents");
+      const data = await res.json();
+      const formattedContent = data.map((content: Content) => ({
+        ...content,
+        createdOn: new Date(content.createdOn).toLocaleString(),
+      }));
+      setContents(formattedContent);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     fetchContent();
   }, [loggedIn === true]);
+
+  const handleListOrUnlist = async (contentId: string, status: boolean) => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:3010/content/status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ contentId, status }),
+      });
+      const data = await res.json();
+      const message = data.message;
+      if (res.status === 200) {
+        toast.success(message, {
+          position: "top-right",
+          autoClose: 2800,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        await fetchContent();
+        setLoading(false);
+      } else {
+        toast.error(message, {
+          position: "top-right",
+          autoClose: 2800,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+    return setLoading(false);
+  };
+
+  const handleBlacklist = async (
+    contentId: string,
+    userId: string,
+    status: boolean
+  ) => {
+    setLoading(true);
+    await handleListOrUnlist(contentId, status);
+    try {
+      const res = await fetch("http://localhost:3010/user/status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, status }),
+      });
+      const data = await res.json();
+      const message = data.message;
+      if (res.status === 200) {
+        toast.success(message, {
+          position: "top-right",
+          autoClose: 2800,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        await fetchContent();
+        setLoading(false);
+      } else {
+        toast.error(message, {
+          position: "top-right",
+          autoClose: 2800,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+    return setLoading(false);
+  };
 
   if (!loggedIn) return null;
   return (
     <AdminLayout currentPage="Content">
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">Content</h1>
       <div className="flex flex-col">
+        <ToastContainer />
         {loading ? (
           <Loading size="xl" color="secondary" type="gradient" />
         ) : (
@@ -121,12 +220,48 @@ export default function ContentPage() {
                         <button className="w-full lg:w-fit bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 mr-3">
                           View
                         </button>
-                        <button className="w-full lg:w-fit bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 mr-3">
-                          Unlist
-                        </button>
-                        <button className="w-full lg:w-fit bg-red-900 text-white font-bold py-2 px-4 rounded hover:bg-amber-500 ">
-                          Delete
-                        </button>
+                        {content.status && content.authorStatus ? (
+                          <button
+                            onClick={() => {
+                              handleListOrUnlist(content._id, false);
+                            }}
+                            className="w-full lg:w-fit bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 mr-3"
+                          >
+                            UnList
+                          </button>
+                        ) : null}
+
+                        {content.authorStatus && !content.status ? (
+                          <button
+                            onClick={() => {
+                              handleListOrUnlist(content._id, true);
+                            }}
+                            className="w-full lg:w-fit bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 mr-3"
+                          >
+                            List
+                          </button>
+                        ) : null}
+                        {content.authorStatus ? (
+                          <button
+                            onClick={() => {
+                              handleBlacklist(
+                                content._id,
+                                content.authorId,
+                                false
+                              );
+                            }}
+                            className="w-full lg:w-fit bg-red-900 text-white font-bold py-2 px-4 rounded hover:bg-amber-500 "
+                          >
+                            Blacklist
+                          </button>
+                        ) : (
+                          <button
+                            disabled
+                            className="w-full lg:w-fit bg-gray-900 text-white font-bold py-2 px-4 rounded"
+                          >
+                            Blacklisted
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
