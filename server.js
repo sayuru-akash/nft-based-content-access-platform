@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Web3 = require("web3");
 const cors = require("cors");
+const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const NftMarket = require("./build/contracts/NftMarket.json");
 
@@ -30,7 +31,11 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error(err));
 
-// Define the schemas for the users and contents collections
+// Define the schemas for the admin, users, and contents collections
+const adminSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String },
+});
 const userSchema = new mongoose.Schema({
   name: { type: String, default: "anonymous" },
   wallet: { type: String, required: true, unique: true },
@@ -49,6 +54,7 @@ const contentSchema = new mongoose.Schema({
   createdOn: { type: Date, default: Date.now },
 });
 
+const Admin = mongoose.model("Admin", adminSchema);
 const Content = mongoose.model("Content", contentSchema);
 const User = mongoose.model("User", userSchema);
 
@@ -173,6 +179,34 @@ app.get("/contents/sale-count", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error getting transaction count" });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const pwd = password;
+    const existingUser = await Admin.findOne({ username });
+    if (existingUser) {
+      const extPwd = existingUser.password;
+      const compare = await bcrypt.compare(pwd, extPwd).then(async (result) => {
+        return result;
+      });
+      if (compare === true) {
+        return res.status(200).json({ message: "Authentication successful" });
+      } else {
+        return res
+          .status(401)
+          .json({ message: "Password authentication failed" });
+      }
+    } else {
+      return res
+        .status(401)
+        .json({ message: "Username authentication failed" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error authenticating user" });
   }
 });
 

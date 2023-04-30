@@ -2,10 +2,29 @@ import React, { useState, useEffect } from "react";
 import AdminLayout from "../AdminLayout";
 import { Loading } from "@nextui-org/react";
 import { User } from "../../../../types/User";
+import { useRouter } from "next/router";
 
 export default function UsersPage() {
-  const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("isLoggedIn="));
+    const isLoggedInCookie = cookieValue
+      ? cookieValue.split("=")[1] === "true"
+      : false;
+    if (isLoggedIn === "false" || !isLoggedInCookie) {
+      router.push("/admin/login");
+    } else {
+      if (loggedIn === false) setLoggedIn(true);
+    }
+  }, [router]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -25,9 +44,10 @@ export default function UsersPage() {
     };
 
     fetchUsers();
-  }, []);
+  }, [loggedIn === true]);
 
-  return (
+  if (!loggedIn) return null;
+  return  (
     <AdminLayout currentPage="Users">
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">Users</h1>
       <div className="flex flex-col">

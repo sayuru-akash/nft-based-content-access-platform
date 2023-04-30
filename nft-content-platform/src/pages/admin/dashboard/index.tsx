@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Loading } from "@nextui-org/react";
 import { Content } from "../../../../types/Content";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,24 @@ export default function DashboardPage() {
   const [contentLast24h, setContentLast24h] = useState(0);
   const [contentSalesCount, setContentSalesCount] = useState(0);
   const [contents, setContents] = useState<Content[]>([]);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("isLoggedIn="));
+    const isLoggedInCookie = cookieValue
+      ? cookieValue.split("=")[1] === "true"
+      : false;
+    if (isLoggedIn === "false" || !isLoggedInCookie) {
+      router.push("/admin/login");
+    } else {
+      if (loggedIn === false) setLoggedIn(true);
+    }
+  }, [router]);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -49,7 +68,9 @@ export default function DashboardPage() {
     };
 
     fetchCounts();
-  }, []);
+  }, [loggedIn === true]);
+
+  if (!loggedIn) return null;
   return (
     <AdminLayout currentPage="Dashboard">
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">Dashboard</h1>
@@ -147,73 +168,77 @@ export default function DashboardPage() {
           <div className="flex flex-col">
             <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Image
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Title
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Token Address
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Created On
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {contents.map((content) => (
-                        <tr key={content._id} className="text-black">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex-shrink-0 h-20 w-20">
-                              <Image
-                                src={content.image}
-                                alt={content.title}
-                                height={100}
-                                width={100}
-                                className="h-20 w-20 rounded-full"
-                              />
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900 uppercase">
-                              {content.title.length > 15
-                                ? `${content.title.slice(0, 15)}..`
-                                : content.title}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">
-                              {`${content.tokenAddress.slice(
-                                0,
-                                10
-                              )}...${content.tokenAddress.slice(-10)}`}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {content.createdOn}
-                          </td>
+                {loading ? (
+                  <Loading size="xl" color="secondary" type="gradient" />
+                ) : (
+                  <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Image
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Title
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Token Address
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Created On
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {contents.map((content) => (
+                          <tr key={content._id} className="text-black">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex-shrink-0 h-20 w-20">
+                                <Image
+                                  src={content.image}
+                                  alt={content.title}
+                                  height={100}
+                                  width={100}
+                                  className="h-20 w-20 rounded-full"
+                                />
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900 uppercase">
+                                {content.title.length > 15
+                                  ? `${content.title.slice(0, 15)}..`
+                                  : content.title}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-500">
+                                {`${content.tokenAddress.slice(
+                                  0,
+                                  10
+                                )}...${content.tokenAddress.slice(-10)}`}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {content.createdOn}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </div>

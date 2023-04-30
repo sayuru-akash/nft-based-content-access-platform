@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { XMarkIcon, HashtagIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/router";
 import Image from "next/image";
 
 const navigation = [
@@ -19,6 +20,17 @@ type AdminHeaderProps = {
 };
 
 export default function AdminHeader({ currentPage }: AdminHeaderProps) {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("isLoggedIn");
+    }
+    document.cookie =
+      "isLoggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/admin;";
+    router.push("/admin/login");
+  };
+
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -113,17 +125,17 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
 
                               <Menu.Item>
                                 {({ active }) => (
-                                  <a
-                                    href="#"
+                                  <button
+                                    onClick={handleLogout}
                                     className={classNames(
                                       active
                                         ? "bg-gray-100 text-gray-900"
                                         : "text-gray-700",
-                                      "block px-4 py-2 text-sm"
+                                      "block px-4 py-2 text-sm w-full text-left"
                                     )}
                                   >
                                     Logout
-                                  </a>
+                                  </button>
                                 )}
                               </Menu.Item>
                             </div>

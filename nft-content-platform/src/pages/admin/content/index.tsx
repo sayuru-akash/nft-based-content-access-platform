@@ -3,10 +3,29 @@ import AdminLayout from "../AdminLayout";
 import { Loading } from "@nextui-org/react";
 import { Content } from "../../../../types/Content";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 export default function ContentPage() {
   const [loading, setLoading] = useState(true);
   const [contents, setContents] = useState<Content[]>([]);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("isLoggedIn="));
+    const isLoggedInCookie = cookieValue
+      ? cookieValue.split("=")[1] === "true"
+      : false;
+    if (isLoggedIn === "false" || !isLoggedInCookie) {
+      router.push("/admin/login");
+    } else {
+      if (loggedIn === false) setLoggedIn(true);
+    }
+  }, [router]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -26,8 +45,9 @@ export default function ContentPage() {
     };
 
     fetchContent();
-  }, []);
+  }, [loggedIn === true]);
 
+  if (!loggedIn) return null;
   return (
     <AdminLayout currentPage="Content">
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">Content</h1>
@@ -105,7 +125,7 @@ export default function ContentPage() {
                           Unlist
                         </button>
                         <button className="w-full lg:w-fit bg-red-900 text-white font-bold py-2 px-4 rounded hover:bg-amber-500 ">
-                          Blacklist
+                          Delete
                         </button>
                       </td>
                     </tr>
