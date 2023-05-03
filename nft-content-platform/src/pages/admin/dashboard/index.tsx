@@ -55,10 +55,12 @@ export default function DashboardPage() {
         data = await fetch("http://localhost:3010/contents").then((res) =>
           res.json()
         );
-        const formattedContent = data.slice(0, 5).map((content: Content) => ({
-          ...content,
-          createdOn: new Date(content.createdOn).toLocaleString(),
-        }));
+        const formattedContent = data
+          .slice(data.length - 5)
+          .map((content: Content) => ({
+            ...content,
+            createdOn: new Date(content.createdOn).toLocaleString(),
+          }));
         setContents(formattedContent);
         await new Promise((resolve) => setTimeout(resolve, 100));
         setLoading(false);
@@ -172,71 +174,84 @@ export default function DashboardPage() {
                   <Loading size="xl" color="secondary" type="gradient" />
                 ) : (
                   <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Image
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Title
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Token Address
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Created On
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {contents.map((content) => (
-                          <tr key={content._id} className="text-black">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex-shrink-0 h-20 w-20">
-                                <Image
-                                  src={content.image}
-                                  alt={content.title}
-                                  height={100}
-                                  width={100}
-                                  className="h-20 w-20 rounded-full"
-                                />
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900 uppercase">
-                                {content.title.length > 15
-                                  ? `${content.title.slice(0, 15)}..`
-                                  : content.title}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">
-                                {`${content.tokenAddress.slice(
-                                  0,
-                                  10
-                                )}...${content.tokenAddress.slice(-10)}`}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {content.createdOn}
-                            </td>
+                    {contents.length === 0 ? (
+                      <div className="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+                        <div className="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+                          <div className="ml-4 mt-4">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                              No content found
+                            </h3>
+                            <p className="mt-1 text-sm leading-5 text-gray-500">
+                              Looks like there is no content yet. Add some to
+                              get started.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Image
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Title
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Token ID
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Created On
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {contents.map((content) => (
+                            <tr key={content._id} className="text-black">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex-shrink-0 h-20 w-20">
+                                  <Image
+                                    src={content.image}
+                                    alt={content.title}
+                                    height={100}
+                                    width={100}
+                                    className="h-20 w-20 rounded-full"
+                                  />
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm font-medium text-gray-900 uppercase">
+                                  {content.title.length > 15
+                                    ? `${content.title.slice(0, 15)}..`
+                                    : content.title}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-500">
+                                  {content.tokenId}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {content.createdOn}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
                   </div>
                 )}
               </div>

@@ -14,6 +14,7 @@ export default function ContentPage() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   const router = useRouter();
+  const { search } = router.query;
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -32,7 +33,11 @@ export default function ContentPage() {
 
   const fetchContent = async () => {
     try {
-      const res = await fetch("http://localhost:3010/contents");
+      let url = "http://localhost:3010/contents";
+      if (search) {
+        url += `?search=${search}`;
+      }
+      const res = await fetch(url);
       const data = await res.json();
       const formattedContent = data.map((content: Content) => ({
         ...content,
@@ -48,7 +53,7 @@ export default function ContentPage() {
 
   useEffect(() => {
     fetchContent();
-  }, [loggedIn === true]);
+  }, [loggedIn === true, search]);
 
   const handleListOrUnlist = async (contentId: string, status: boolean) => {
     setLoading(true);
@@ -156,6 +161,40 @@ export default function ContentPage() {
         ) : (
           <div className="py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
             <div className="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200">
+            <div className="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+                <div className="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+                  <div className="ml-4 mt-4">
+                    <h3 className="text-lg leading-6 font-medium text-gray-700">
+                      Search content by their title or token id...
+                    </h3>
+                  </div>
+                </div>
+                <div className="mt-1 relative rounded-md shadow-sm">
+                  <input
+                    id="search"
+                    className="form-input pt-1 pb-1 text-blue-600 font-mono text-lg block w-full sm:text-sm sm:leading-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter search term in here to search"
+                    onChange={(e) =>
+                      router.push(`/admin/content?search=${e.target.value}`)
+                    }
+                  />
+                </div>
+              </div>
+            {contents.length === 0 ? (
+                <div className="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+                  <div className="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+                    <div className="ml-4 mt-4">
+                      <h3 className="text-lg leading-6 font-medium text-gray-900">
+                        No content found
+                      </h3>
+                      <p className="mt-1 text-sm leading-5 text-gray-500">
+                        Looks like there are no content matching your search
+                        criteria.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
               <table className="min-w-full">
                 <thead>
                   <tr>
@@ -166,7 +205,7 @@ export default function ContentPage() {
                       Image
                     </th>
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                      Token Address
+                      Token ID
                     </th>
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                       Title
@@ -198,10 +237,7 @@ export default function ContentPage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                        {`${content.tokenAddress.slice(
-                          0,
-                          5
-                        )}...${content.tokenAddress.slice(-5)}`}
+                        {content.tokenId}
                       </td>
                       <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                         {content.title.length > 10
@@ -267,6 +303,7 @@ export default function ContentPage() {
                   ))}
                 </tbody>
               </table>
+              )}
             </div>
           </div>
         )}
