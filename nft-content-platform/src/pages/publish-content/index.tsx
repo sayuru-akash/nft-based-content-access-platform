@@ -11,12 +11,12 @@ import { create } from "ipfs-http-client";
 import { Buffer } from "buffer";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import axios from "axios";
 import CryptoJS from "crypto-js";
 import { useAccount } from "wagmi";
 import { prepareWriteContract, writeContract } from "@wagmi/core";
 import nftMarket from "../../../public/NftMarket.json";
 import { ethers } from "ethers";
+import { v4 as uuidv4 } from "uuid";
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID;
 const infuraSecret = process.env.NEXT_PUBLIC_INFURA_SECRET;
@@ -48,10 +48,27 @@ export default function PublishContent() {
   const [price, setPrice] = useState(0.01);
   const [thumbnailUrl, updateThumbnailUrl] = useState("");
   const [mintedNFTAddress, setMintedNFTAddress] = useState("");
+  const [vUID, setVUID] = useState("");
 
   const [message, setMessage] = useState("");
 
   const mintAccessNFT = async () => {
+    if (!isConnected) {
+      setMessage("Please connect your wallet to mint an NFT.");
+      return;
+    }
+    if (
+      title == "" ||
+      author == "" ||
+      description == "" ||
+      price == 0 ||
+      thumbnailUrl == "" ||
+      fileUrl == ""
+    ) {
+      setMessage("Please fill out all fields before minting.");
+      return;
+    }
+    setMessage("Minting NFT...");
     const contract = nftMarket;
 
     const nftMetadataFile = JSON.stringify({
@@ -66,7 +83,7 @@ export default function PublishContent() {
     const fileAdded = await client.add(nftMetadataFile);
     const url = `https://ipfs.io/ipfs/${fileAdded.path}`;
 
-    console.log("IPFS URI: ", url);
+    console.log("Metadata IPFS URI: ", url);
 
     const config = await prepareWriteContract({
       address: "0x82E9A535DE8148505BD1F2E0642193737440b044",
@@ -78,33 +95,51 @@ export default function PublishContent() {
       abi: contract.abi,
     });
 
+    let tx;
     try {
       const mintedNFT = await writeContract(config);
       mintedNFT.wait().then(async (receipt) => {
-        const tx = receipt.transactionHash;
-        console.log("tx", tx);
-        setMintedNFTAddress(tx);
+        {
+          tx = receipt.transactionHash;
+          console.log("tx", tx);
+          setMintedNFTAddress(tx);
+        }
+
+        const allOwnedNfts = await fetch(
+          `http://localhost:3000/api/get-user-nfts?address=${address}`
+        );
+        const nfts = await allOwnedNfts.json();
+        const tokenId = nfts[nfts.length - 1].tokenID.hex.toString();
 
         const userID = await fetch("http://localhost:3010/user/add/" + address)
           .then((response) => response.json())
           .then((data) => data)
           .catch((error) => console.error(error));
 
-        const requestOptions = {
+        const contentID = await fetch("http://localhost:3010/content/add", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
             image: thumbnailUrl,
             tokenAddress: tx,
+            tokenId: tokenId,
             title: title,
             authorId: userID.data.id,
+            encKey: vUID,
           }),
-        };
+        });
 
-        fetch("http://localhost:3010/content/add", requestOptions)
-          .then((response) => response.json())
-          .then((data) => console.log(data))
-          .catch((error) => console.error(error));
+        const contentIDData = await contentID.json();
+        if (contentIDData && contentIDData.newContentId) {
+          console.log("Content ID: ", contentIDData.newContentId);
+        } else {
+          console.log("Error: ", contentIDData.message);
+          setMessage(
+            "Error occurred while adding content to database. You may not be able to decrypt the encrypted content later. Please contact support. 🙏"
+          );
+        }
       });
     } catch (error: any) {
       setMessage(error.message);
@@ -139,81 +174,41 @@ export default function PublishContent() {
       const fileAdded = await client.add(file);
       const url = `https://ipfs.io/ipfs/${fileAdded.path}`;
 
-      console.log("IPFS URI: ", url);
+      console.log("Thumbnail IPFS URI: ", url);
       updateThumbnailUrl(url);
+
+      const veryUniqueID = uuidv4();
+      setVUID(veryUniqueID);
     } catch (error) {
       setMessage("Error uploading thumbnail");
       console.log("Error uploading thumbnail: ", error);
     }
   }
 
-  const encryptBinary = async (binary: string, walletAddress: string) => {
-    const key = CryptoJS.enc.Hex.parse(walletAddress);
-    const iv = CryptoJS.enc.Hex.parse("abcdef9876543210abcdef9876543210");
-    const encrypted = CryptoJS.AES.encrypt(binary, key, {
-      iv,
-    });
-    return await Promise.resolve(
-      encrypted.ciphertext.toString(CryptoJS.enc.Base64)
-    );
-  };
-
-  // const decryptBinary = async (data: string, walletAddress: string) => {
-  //   const key = CryptoJS.enc.Hex.parse(walletAddress);
-  //   const iv = CryptoJS.enc.Hex.parse("abcdef9876543210abcdef9876543210");
-  //   const decrypted = CryptoJS.AES.decrypt(data, key, {
-  //     iv,
-  //   });
-  //   return await Promise.resolve(decrypted.toString(CryptoJS.enc.Latin1));
-  // };
-
-  const fileToBinary = (file: File) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const arrayBuffer = reader.result;
-        const binary = new Uint8Array(arrayBuffer as ArrayBuffer);
-        resolve(binary);
-      };
-      reader.onerror = () => {
-        reject(new Error("Failed to read file"));
-      };
-      reader.readAsArrayBuffer(file);
-    });
-  };
-
   async function onFileChange(e: any) {
     const file = e.target.files[0];
     try {
       if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const fileData = new Uint8Array(reader.result as ArrayBuffer);
 
-      const binary: Uint8Array = (await fileToBinary(file)) as Uint8Array;
-      console.log("Binary: ", binary);
-      const encrypted = await encryptBinary(
-        binary.toString(),
-        "0x0000000000000000000000000"
-      );
-      console.log("Binary: ", binary.toString());
-      const encryptedJson = JSON.stringify({ data: encrypted });
-      console.log(encryptedJson);
-      const fileAdded = await client.add(encryptedJson);
-      const url = `https://ipfs.io/ipfs/${fileAdded.path}`;
-      console.log("IPFS URI: ", url);
+        const ciphertext = await CryptoJS.AES.encrypt(
+          fileData.toString(),
+          vUID
+        );
+        const encrypted = ciphertext.toString();
 
-      // const uploadedFile = await axios.get(url);
-      // const data = uploadedFile.data;
-      // console.log("Uploaded File: ", uploadedFile.data);
+        const encryptedJson = JSON.stringify({ data: encrypted });
+        console.log(encryptedJson);
 
-      // const decryptedFile = await decryptBinary(
-      //   data.data as string,
-      //   "0x0000000000000000000000000"
-      // );
-      // console.log("Decrypted File: ", decryptedFile);
-      // const blob = new Blob([binary], { type: "image/png" });
-      // const urlCreator = window.URL || window.webkitURL;
-      // const imageUrl = urlCreator.createObjectURL(blob);
-      // updateFileUrl(imageUrl);
-      updateFileUrl(url);
+        const fileAdded = await client.add(encryptedJson);
+        const url = `https://ipfs.io/ipfs/${fileAdded.path}`;
+        console.log("Content IPFS URI: ", url);
+
+        updateFileUrl(url);
+      };
+      reader.readAsArrayBuffer(file);
     } catch (error) {
       setMessage("Error uploading file");
       console.log("Error uploading file: ", error);
@@ -338,6 +333,7 @@ export default function PublishContent() {
                           onChange={(e) => {
                             setTitle(e.target.value);
                           }}
+                          required
                         />
                       </div>
                     </div>
@@ -361,6 +357,7 @@ export default function PublishContent() {
                           onChange={(e) => {
                             setAuthor(e.target.value);
                           }}
+                          required
                         />
                       </div>
                     </div>
@@ -382,6 +379,7 @@ export default function PublishContent() {
                         onChange={(e) => {
                           setDescription(e.target.value);
                         }}
+                        required
                       />
                     </div>
                   </div>
@@ -419,6 +417,7 @@ export default function PublishContent() {
                           className="text-gray-900 w-16 h-8 text-lg text-center border-gray-400 border rounded-md mx-2 appearance-none"
                           value={price.toFixed(2)}
                           onChange={(e) => setPrice(parseFloat(e.target.value))}
+                          required
                         />
                         <button
                           type="button"
@@ -466,6 +465,7 @@ export default function PublishContent() {
                               type="file"
                               className="sr-only"
                               onChange={onThumbnailChange}
+                              required
                             />
                             <input
                               type="text"
@@ -473,6 +473,7 @@ export default function PublishContent() {
                               id="thumbnail_url"
                               style={{ display: "none" }}
                               defaultValue={thumbnailUrl && thumbnailUrl}
+                              required
                             />
                           </label>
                           <p className="pl-1">or drag and drop</p>
@@ -483,50 +484,52 @@ export default function PublishContent() {
                       </div>
                     </div>
                   </div>
-
-                  <div className="col-span-full">
-                    <label
-                      htmlFor="file-upload"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      Upload Content
-                    </label>
-                    <div className="mt-2 bg-white flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                      <div className="text-center">
-                        {fileUrl !== "" && (
-                          <DocumentCheckIcon
-                            className="mx-auto h-12 w-12 text-gray-300"
-                            aria-hidden="true"
-                          />
-                        )}
-                        {fileUrl === "" && (
-                          <DocumentPlusIcon
-                            className="mx-auto h-12 w-12 text-gray-300"
-                            aria-hidden="true"
-                          />
-                        )}
-                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                          <label
-                            htmlFor="file-upload"
-                            className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                          >
-                            <span>Upload a file</span>
-                            <input
-                              id="file-upload"
-                              name="file-upload"
-                              type="file"
-                              className="sr-only"
-                              onChange={onFileChange}
+                  {thumbnailUrl && vUID && (
+                    <div className="col-span-full">
+                      <label
+                        htmlFor="file-upload"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Upload Content
+                      </label>
+                      <div className="mt-2 bg-white flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                        <div className="text-center">
+                          {fileUrl !== "" && (
+                            <DocumentCheckIcon
+                              className="mx-auto h-12 w-12 text-gray-300"
+                              aria-hidden="true"
                             />
-                          </label>
-                          <p className="pl-1">or drag and drop</p>
+                          )}
+                          {fileUrl === "" && (
+                            <DocumentPlusIcon
+                              className="mx-auto h-12 w-12 text-gray-300"
+                              aria-hidden="true"
+                            />
+                          )}
+                          <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                            <label
+                              htmlFor="file-upload"
+                              className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                            >
+                              <span>Upload a file</span>
+                              <input
+                                id="file-upload"
+                                name="file-upload"
+                                type="file"
+                                className="sr-only"
+                                onChange={onFileChange}
+                                required
+                              />
+                            </label>
+                            <p className="pl-1">or drag and drop</p>
+                          </div>
+                          <p className="text-xs leading-5 text-gray-600">
+                            Up to 100MB
+                          </p>
                         </div>
-                        <p className="text-xs leading-5 text-gray-600">
-                          Up to 100MB
-                        </p>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

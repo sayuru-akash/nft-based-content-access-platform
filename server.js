@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
 });
 const contentSchema = new mongoose.Schema({
   image: { type: String, required: true },
-  tokenAddress: { type: String, required: true, unique: true },
+  tokenId: { type: String, required: true, unique: true, default: "0" },
   title: { type: String, required: true },
   authorId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -54,6 +54,7 @@ const contentSchema = new mongoose.Schema({
   },
   createdOn: { type: Date, default: Date.now },
   status: { type: Boolean, default: false },
+  encKey: { type: String, required: true },
 });
 
 const Admin = mongoose.model("Admin", adminSchema);
@@ -88,8 +89,15 @@ app.get("/user/add/:wallet", async (req, res) => {
 
 // Get all users from the users collection
 app.get("/users", async (req, res) => {
+  const searchQuery = req.query.search;
   try {
-    const users = await User.find();
+    let users;
+    if (searchQuery) {
+      const regex = new RegExp(searchQuery, "i");
+      users = await User.find({ $or: [{ wallet: regex }, { name: regex }] });
+    } else {
+      users = await User.find();
+    }
     return res.status(200).json(users);
   } catch (err) {
     console.error(err);
@@ -168,12 +176,19 @@ app.get("/user/delete/:userId", async (req, res) => {
 // Add a new content to the contents collection or return the existing content ID
 app.post("/content/add", async (req, res) => {
   try {
-    const { image, tokenAddress, title, authorId } = req.body;
-    const existingContent = await Content.findOne({ tokenAddress });
+    const { image, tokenId, title, authorId, encKey } = req.body;
+    const existingContent = await Content.findOne({ tokenId });
     if (existingContent) {
       return res.status(200).json({ existingContentId: existingContent._id });
     }
-    const newContent = new Content({ image, tokenAddress, title, authorId });
+    const newContent = new Content({
+      image,
+      tokenId,
+      title,
+      authorId,
+      encKey,
+      status: true,
+    });
     const savedContent = await newContent.save();
     await User.findByIdAndUpdate(authorId, { $inc: { ownedContent: 1 } });
     return res.status(200).json({ newContentId: savedContent._id });
@@ -185,8 +200,17 @@ app.post("/content/add", async (req, res) => {
 
 // Get all contents from the contents collection
 app.get("/contents", async (req, res) => {
+  const searchQuery = req.query.search;
   try {
-    const contents = await Content.find();
+    let contents;
+    if (searchQuery) {
+      const regex = new RegExp(searchQuery, "i");
+      contents = await Content.find({
+        $or: [{ title: regex }, { tokenId: regex }],
+      });
+    } else {
+      contents = await Content.find();
+    }
     const users = await User.find();
     const contentWithUserStatus = contents.map((content) => {
       const user = users.find(
@@ -198,6 +222,22 @@ app.get("/contents", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Error getting contents" });
+  }
+});
+
+// Get content by token id
+app.get("/content/:tokenId", async (req, res) => {
+  const tokenId = req.params.tokenId;
+  try {
+    const content = await Content.findOne({ tokenId });
+    if (content) {
+      return res.status(200).json({ message: "Content Found", content });
+    } else {
+      return res.status(404).json({ message: "Content not found" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error getting content" });
   }
 });
 

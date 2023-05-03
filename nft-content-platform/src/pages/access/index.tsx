@@ -4,6 +4,7 @@ import Footer from "@/components/ui/footer";
 import Navbar from "@/components/ui/navbar";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import CryptoJS from "crypto-js";
 import { useAccount } from "wagmi";
 import { prepareWriteContract, writeContract } from "@wagmi/core";
 import nftMarket from "../../../public/NftMarket.json";
@@ -71,6 +72,7 @@ export default function Access() {
     const nft = await data.json();
     if (nft) {
       isAuthorized(true);
+      setMessage("");
     }
 
     const ipfsUri = nft.tokenURI;
@@ -88,7 +90,7 @@ export default function Access() {
 
   const listAccessNFT = async (listingPrice: number) => {
     if (!isConnected) {
-      console.log("Please connect your wallet");
+      console.log("Wallet not connected.");
       return;
     }
 
@@ -115,6 +117,68 @@ export default function Access() {
       setMessage("NFT listed successfully! 🎉");
     } catch (error: any) {
       console.log("error", error);
+    }
+  };
+
+  const accessContent = async () => {
+    if (!isConnected) {
+      console.log("Wallet not connected.");
+      return;
+    }
+
+    const authorize = await fetch(
+      `/api/get-nft-content?id=${id}&address=${address}`
+    );
+    const authorized = await authorize.json();
+    if (authorized.tokenID) {
+      const response = await fetch(`http://localhost:3010/content/${id}`);
+      const data = await response.json();
+      if (data) {
+        const tokenURI = authorized.tokenURI;
+        const tokenData = await fetch(tokenURI);
+        const fileURl = await tokenData.json().then((data) => {
+          return data.file_url;
+        });
+        const secret = data.content.encKey;
+
+        try {
+          const encryptedFile = await fetch(fileURl);
+          const encryptedFileData = await encryptedFile.json();
+
+          const decryptedFile = await CryptoJS.AES.decrypt(
+            encryptedFileData.data,
+            secret
+          );
+          const decryptedFileData = decryptedFile.toString(CryptoJS.enc.Utf8);
+
+          const decryptedFileUint8Array = new Uint8Array(
+            decryptedFileData.split(",").map(Number)
+          );
+          const blob = new Blob([decryptedFileUint8Array], {
+            type: "image/png",
+          });
+
+          const url = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "image.png";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+
+          // const urlCreator = window.URL || window.webkitURL;
+          // const imageUrl = urlCreator.createObjectURL(blob);
+          // window.open(imageUrl, "_blank");
+        } catch (error) {
+          console.error("Error decrypting file:", error);
+        }
+      } else {
+        console.log("no data found for this NF Access Token");
+      }
+    } else {
+      console.log("unauthorized");
     }
   };
 
@@ -260,7 +324,10 @@ export default function Access() {
                               List on Marketplace
                             </button>
                           )}
-                          <button className="w-full md:w-auto block mb-2 md:flex-shrink-0 md:inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 mr-2">
+                          <button
+                            onClick={accessContent}
+                            className="w-full md:w-auto block mb-2 md:flex-shrink-0 md:inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 mr-2"
+                          >
                             Access Exclusive Content
                           </button>
                         </div>
