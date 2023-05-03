@@ -8,12 +8,12 @@ export default function Hero() {
           <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             <span className="block">Publish your content with</span>
             <span className="block text-indigo-600">
-              Blockchain-Driven NFTs
+              Encrypted Non-Fungible Tokens
             </span>
           </h2>
           <p className="mt-4 max-w-3xl text-lg text-gray-500 lg:mx-0">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus
-            magnam voluptatum cupiditate veritatis in, accusamus quisquam.
+            Share your creations with blockchain-powered non-fungible tokens
+            (NFTs) and join the next generation of content distribution.
           </p>
           <div className="mt-10 sm:flex sm:justify-center lg:justify-start lg:w-2/3">
             <div className="rounded-md shadow">

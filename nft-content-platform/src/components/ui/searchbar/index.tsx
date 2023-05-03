@@ -19,9 +19,9 @@ export default function SearchBar() {
           <span style={{ color: "#8B5CF6" }}>s</span>
         </h1>
         <p className="mt-6 text-xl text-white max-w-3xl mb-6">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
-          aliquet, massa eu luctus fringilla, dolor ex suscipit mi, non
-          efficitur justo lectus quis turpis.
+          Discover and be a collector of valuable non-fungible tokens (NFTs)
+          that serves as access cards to authentic content with our easy-to-use
+          platform.
         </p>
         <div className="container mx-auto">
           <div className="relative z-10 flex items-center justify-between">
