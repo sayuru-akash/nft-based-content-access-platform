@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { XMarkIcon, HashtagIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
@@ -23,15 +23,29 @@ type AdminHeaderProps = {
 export default function AdminHeader({ currentPage }: AdminHeaderProps) {
   const router = useRouter();
 
-  const isLoggedIn = Cookies.get("isLoggedIn");
-  if (isLoggedIn === "false" || !isLoggedIn) {
-    return null;
-  }
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const isLoggedIn = Cookies.get("isLoggedIn");
+    if (isLoggedIn === "false" || !isLoggedIn) {
+      setLoggedIn(false);
+    } else {
+      setLoggedIn(true);
+    }
+  }, []);
 
   const handleLogout = () => {
     Cookies.remove("isLoggedIn");
     router.push("/admin/login");
   };
+
+  if (!loggedIn) {
+    return (
+      <Disclosure as="nav" className="bg-white">
+        <div></div>
+      </Disclosure>
+    );
+  }
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -66,6 +80,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                   </div>
                 </div>
               </div>
+
               <div className="-mr-2 flex md:hidden">
                 <Disclosure.Button className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="sr-only">Open main menu</span>
@@ -76,6 +91,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                   )}
                 </Disclosure.Button>
               </div>
+
               <div className="hidden md:block">
                 <div className="ml-4 flex items-center md:ml-6">
                   <Menu as="div" className="ml-3 relative">

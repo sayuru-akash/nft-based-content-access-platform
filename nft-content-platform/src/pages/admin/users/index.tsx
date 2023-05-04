@@ -25,15 +25,14 @@ export default function UsersPage() {
   const router = useRouter();
   const { search } = router.query;
 
-  const isLoggedIn = Cookies.get("isLoggedIn");
-
   useEffect(() => {
+    const isLoggedIn = Cookies.get("isLoggedIn");
     if (isLoggedIn === "false" || !isLoggedIn) {
       router.push("/admin/login");
     } else {
       setLoggedIn(true);
     }
-  }, [isLoggedIn]);
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -143,7 +142,7 @@ export default function UsersPage() {
     return setLoading(false);
   };
 
-  if (!isLoggedIn)
+  if (!loggedIn)
     return (
       <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8"></div>
     );

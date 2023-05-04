@@ -20,15 +20,15 @@ export default function DashboardPage() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   const router = useRouter();
-  const isLoggedIn = Cookies.get("isLoggedIn");
 
   useEffect(() => {
+    const isLoggedIn = Cookies.get("isLoggedIn");
     if (isLoggedIn === "false" || !isLoggedIn) {
       router.push("/admin/login");
     } else {
       setLoggedIn(true);
     }
-  }, [isLoggedIn]);
+  }, []);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -67,13 +67,14 @@ export default function DashboardPage() {
     fetchCounts();
   }, [loggedIn === true]);
 
-  if (!isLoggedIn)
+  if (!loggedIn)
     return (
       <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8"></div>
     );
   return (
     <AdminLayout currentPage="Dashboard">
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">Dashboard</h1>
+
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
