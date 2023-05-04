@@ -14,7 +14,9 @@ export default function AdminLayout({
     <>
       <div className="bg-white min-h-screen">
         <AdminHeader currentPage={currentPage} />
-        <div className="max-w-7xl mx-auto py-6 px-6 lg:px-8">{children}</div>
+        <div className="max-w-7xl mx-auto py-6 px-6 lg:px-8 min-h-[75vh]">
+          {children}
+        </div>
       </div>
     </>
   );

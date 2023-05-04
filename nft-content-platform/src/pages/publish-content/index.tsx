@@ -218,7 +218,7 @@ export default function PublishContent() {
   return (
     <>
       <Navbar />
-      <div className="bg-purple-50  mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-10">
+      <div className="bg-purple-50  mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-10 min-h-[75vh]">
         <div className="max-w-7xl mx-auto pb-4">
           <div className="text-start">
             {message && (

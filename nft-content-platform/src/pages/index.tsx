@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <div className="bg-white">
+      <div className="bg-white min-h-[100vh]">
         <Hero />
         <NFTSlider />
         <SearchBar />

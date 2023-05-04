@@ -43,7 +43,7 @@ export default function Profile() {
   return (
     <>
       <Navbar />
-      <div className="bg-purple-50">
+      <div className="bg-purple-50 min-h-[75vh]">
         <div className="py-12 bg-grey-90">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="block mb-9">
