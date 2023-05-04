@@ -223,13 +223,13 @@ export default function Contact() {
                 <span className="text-orange-500">k</span>
               </h1>
               <span className="text-sm font-medium text-black">
-                New here? Don't worry, we've got you covered. We have a
-                dedicated team of developers who are always ready to help you
-                out. But that's not enough for us. We want to make sure that you
-                get the best experience possible. That's why you should see what
-                our customers have to say about us. We're always looking for
-                ways to improve our service, so if you have any feedback or
-                suggestions, please let us know!
+                New here? Don&apos;t worry, we&apos;ve got you covered. We have
+                a dedicated team of developers who are always ready to help you
+                out. But that&apos;s not enough for us. We want to make sure
+                that you get the best experience possible. That&apos;s why you
+                should see what our customers have to say about us. We&apos;re
+                always looking for ways to improve our service, so if you have
+                any feedback or suggestions, please let us know!
               </span>
               <div className="flex flex-wrap -mx-4 overflow-hidden sm:-mx-4 md:-mx-4 lg:-mx-4 xl:-mx-4">
                 <div className="my-4 px-4 w-full overflow-hidden sm:my-4 sm:px-4 sm:w-1/2 md:my-4 md:px-4 md:w-1/2 lg:my-4 lg:px-4 lg:w-1/2 xl:my-4 xl:px-4 xl:w-1/2">
