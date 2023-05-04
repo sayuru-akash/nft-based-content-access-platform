@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Web3 = require("web3");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 const NftMarket = require("./build/contracts/NftMarket.json");
 
@@ -61,6 +62,16 @@ const Admin = mongoose.model("Admin", adminSchema);
 const Content = mongoose.model("Content", contentSchema);
 const User = mongoose.model("User", userSchema);
 
+// Create a new email transporter using SendGrid
+const transporter = nodemailer.createTransport({
+  host: process.env.SENDGRID_SMTP_SERVER,
+  port: process.env.SENDGRID_SMTP_PORT,
+  auth: {
+    user: process.env.SENDGRID_SMTP_USERNAME,
+    pass: process.env.SENDGRID_API_KEY,
+  },
+});
+
 // Add a new user to the users collection or return the existing user ID
 app.get("/user/add/:wallet", async (req, res) => {
   const wallet = req.params.wallet;
@@ -112,12 +123,10 @@ app.get("/user/:wallet", async (req, res) => {
   try {
     const user = await User.findOne({ wallet });
     if (user) {
-      return res
-        .status(200)
-        .json({
-          message: "User found",
-          data: { id: user._id, name: user.name },
-        });
+      return res.status(200).json({
+        message: "User found",
+        data: { id: user._id, name: user.name },
+      });
     } else {
       return res.status(404).json({ message: "User not found" });
     }
@@ -379,6 +388,38 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Error authenticating user" });
+  }
+});
+
+// Contact form submission
+app.post("/contact", async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ message: "Missing required fields" });
+    } else if (name.length > 50 || email.length > 50 || message.length > 500) {
+      return res.status(400).json({ message: "Fields too long" });
+    } else if (name.length < 3 || email.length < 3 || message.length < 3) {
+      return res.status(400).json({ message: "Fields too short" });
+    } else if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    const sent = await transporter.sendMail({
+      from: process.env.SERVER_EMAIL,
+      to: process.env.ADMIN_EMAIL,
+      subject: "New contact form submission",
+      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+    });
+
+    if (sent) {
+      return res.status(200).json({ message: "Contact form submitted" });
+    } else {
+      return res.status(500).json({ message: "Error submitting contact form" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error submitting contact form" });
   }
 });
 
