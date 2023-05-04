@@ -6,6 +6,7 @@ import { SSRProvider } from "@react-aria/ssr";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const router = useRouter();
@@ -14,14 +15,8 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const cookieValue = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("isLoggedIn="));
-    const isLoggedInCookie = cookieValue
-      ? cookieValue.split("=")[1] === "true"
-      : false;
-    if (isLoggedIn === "true" && isLoggedInCookie) {
+    const isLoggedIn = Cookies.get("isLoggedIn");
+    if (isLoggedIn === "true") {
       router.push("/admin/dashboard");
     } else {
       setIsLoading(false);
@@ -39,12 +34,11 @@ export default function Login() {
     });
 
     if (response.status === 200) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("isLoggedIn", "true");
-      }
-      const expires = new Date();
-      expires.setTime(expires.getTime() + 30 * 60 * 1000);
-      document.cookie = `isLoggedIn=true; expires=${expires.toUTCString()}; path=/admin`;
+      Cookies.remove("userId");
+      Cookies.set("isLoggedIn", "true", {
+        sameSite: "lax",
+        expires: 1 / 24,
+      });
       router.push("/admin/dashboard");
     } else {
       toast.error("Invalid username or password!", {

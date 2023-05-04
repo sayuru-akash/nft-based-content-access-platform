@@ -7,6 +7,7 @@ import { Loading } from "@nextui-org/react";
 import { Content } from "../../../../types/Content";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -19,21 +20,15 @@ export default function DashboardPage() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   const router = useRouter();
+  const isLoggedIn = Cookies.get("isLoggedIn");
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const cookieValue = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("isLoggedIn="));
-    const isLoggedInCookie = cookieValue
-      ? cookieValue.split("=")[1] === "true"
-      : false;
-    if (isLoggedIn === "false" || !isLoggedInCookie) {
+    if (isLoggedIn === "false" || !isLoggedIn) {
       router.push("/admin/login");
     } else {
-      if (loggedIn === false) setLoggedIn(true);
+      setLoggedIn(true);
     }
-  }, [router]);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -72,7 +67,10 @@ export default function DashboardPage() {
     fetchCounts();
   }, [loggedIn === true]);
 
-  if (!loggedIn) return null;
+  if (!isLoggedIn)
+    return (
+      <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8"></div>
+    );
   return (
     <AdminLayout currentPage="Dashboard">
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">Dashboard</h1>

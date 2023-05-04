@@ -4,6 +4,7 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { XMarkIcon, HashtagIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import Cookies from "js-cookie";
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard" },
@@ -22,12 +23,13 @@ type AdminHeaderProps = {
 export default function AdminHeader({ currentPage }: AdminHeaderProps) {
   const router = useRouter();
 
+  const isLoggedIn = Cookies.get("isLoggedIn");
+  if (isLoggedIn === "false" || !isLoggedIn) {
+    return null;
+  }
+
   const handleLogout = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("isLoggedIn");
-    }
-    document.cookie =
-      "isLoggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/admin;";
+    Cookies.remove("isLoggedIn");
     router.push("/admin/login");
   };
 

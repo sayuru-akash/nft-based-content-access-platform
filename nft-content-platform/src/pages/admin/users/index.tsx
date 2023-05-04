@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { Modal, Button } from "@nextui-org/react";
+import Cookies from "js-cookie";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -24,20 +25,15 @@ export default function UsersPage() {
   const router = useRouter();
   const { search } = router.query;
 
+  const isLoggedIn = Cookies.get("isLoggedIn");
+
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const cookieValue = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("isLoggedIn="));
-    const isLoggedInCookie = cookieValue
-      ? cookieValue.split("=")[1] === "true"
-      : false;
-    if (isLoggedIn === "false" || !isLoggedInCookie) {
+    if (isLoggedIn === "false" || !isLoggedIn) {
       router.push("/admin/login");
     } else {
-      if (loggedIn === false) setLoggedIn(true);
+      setLoggedIn(true);
     }
-  }, [router]);
+  }, [isLoggedIn]);
 
   const fetchUsers = async () => {
     try {
@@ -147,7 +143,10 @@ export default function UsersPage() {
     return setLoading(false);
   };
 
-  if (!loggedIn) return null;
+  if (!isLoggedIn)
+    return (
+      <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8"></div>
+    );
   return (
     <AdminLayout currentPage="Users">
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">Users</h1>
