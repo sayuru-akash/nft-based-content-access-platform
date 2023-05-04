@@ -2,6 +2,7 @@ import {
   ShieldCheckIcon,
   ArrowUpOnSquareStackIcon,
   ShoppingCartIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
@@ -18,6 +19,7 @@ interface NFTCardProps {
   author: string;
   price: number;
   owner: string;
+  allowed: boolean;
 }
 
 export default function NFTCard({
@@ -27,8 +29,10 @@ export default function NFTCard({
   imageUrl,
   price,
   owner,
+  allowed,
 }: NFTCardProps) {
   const { address, isConnected } = useAccount();
+
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
   const buyAccessNFT = async () => {
@@ -112,7 +116,16 @@ export default function NFTCard({
               className="h-5 w-5"
             />
           </div>
-          {owner === address && (
+          {!allowed && (
+            <div className="ml-auto flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              Banned
+              <ExclamationTriangleIcon
+                className="ml-2 -mr-0.5 h-4 w-4"
+                aria-hidden="true"
+              />
+            </div>
+          )}
+          {owner === address && allowed && (
             <div className="ml-auto flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               Owned
               <ShieldCheckIcon
@@ -121,7 +134,7 @@ export default function NFTCard({
               />
             </div>
           )}
-          {owner !== address && (
+          {owner !== address && allowed && (
             <button
               onClick={buyAccessNFT}
               className="ml-auto flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

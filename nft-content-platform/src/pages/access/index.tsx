@@ -47,12 +47,15 @@ export default function Access() {
       return;
     }
 
+    if (!id) {
+      return;
+    }
     const data = await fetch(`/api/get-nft?id=${id}`);
 
     if (data.status === 401) {
       isAuthorized(false);
       setMessage(
-        "Sorry, you do not own the access NFT for this content. Please check your wallet and try again."
+        "Sorry, this content has been banned from the platform due to a violation of our terms of service. Please contact us if you believe this is a mistake."
       );
       return;
     } else if (data.status === 404) {
@@ -71,6 +74,13 @@ export default function Access() {
 
     const nft = await data.json();
     if (nft) {
+      if (nft.owner !== address) {
+        isAuthorized(false);
+        setMessage(
+          "Sorry, you are not the owner of this content. Please try again with the correct wallet."
+        );
+        return;
+      }
       isAuthorized(true);
       setMessage("");
     }
@@ -175,10 +185,10 @@ export default function Access() {
           console.error("Error decrypting file:", error);
         }
       } else {
-        console.log("no data found for this NF Access Token");
+        console.log("No data found for this NF Access Token");
       }
     } else {
-      console.log("unauthorized");
+      console.log("Banned content or not authorized to access this content");
     }
   };
 
@@ -252,11 +262,14 @@ export default function Access() {
                   <div className="mt-10 sm:flex">
                     <div className="sm:w-1/2 sm:pr-10 flex items-center justify-center">
                       <div className="relative w-96 h-96 bg-white rounded-xl">
-                        <Image
-                          src={nftData.data.image}
-                          alt={nftData.data.name}
-                          fill
-                        />
+                        {nftData.data.image && (
+                          <Image
+                            src={nftData.data.image}
+                            alt={nftData.data.name}
+                            fill
+                            sizes="500px"
+                          />
+                        )}
                       </div>
                     </div>
                     <div className="sm:w-1/2 flex flex-col justify-between mt-10 md:mt-0">

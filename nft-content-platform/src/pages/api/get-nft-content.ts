@@ -36,6 +36,16 @@ export default async function handler(
 
     const uri = await myContractWithSigner.tokenURI(getNftItem.tokenId);
     const owner = await myContractWithSigner.ownerOf(getNftItem.tokenId);
+    const isNotBanned = await fetch(
+      "http://localhost:3010/content/status/" + id
+    );
+    const isNotBannedData = await isNotBanned.json();
+    console.log(isNotBannedData.status);
+
+    if (!isNotBannedData.status) {
+      res.status(40).json({ message: "Banned" });
+      return;
+    }
 
     if (address !== owner) {
       res.status(401).json({ message: "Unauthorized" });

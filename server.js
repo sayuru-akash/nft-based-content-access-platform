@@ -124,6 +124,26 @@ app.get("/user/:wallet", async (req, res) => {
   }
 });
 
+// Get the status of a user by id
+app.get("/user/status/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  if (userId) {
+    try {
+      const user = await User.findOne({ _id: userId });
+      if (user) {
+        return res.status(200).json({ status: user.status });
+      } else {
+        return res.status(404).json({ status: false });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error getting user" });
+    }
+  } else {
+    return res.status(404).json({ message: "User not found" });
+  }
+});
+
 // Get the count of all users in the users collection and the count of users who joined in the last 24 hours
 app.get("/users/count", async (req, res) => {
   try {
@@ -238,6 +258,26 @@ app.get("/content/:tokenId", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Error getting content" });
+  }
+});
+
+// Get the status of a content by token id
+app.get("/content/status/:tokenId", async (req, res) => {
+  const tokenId = req.params.tokenId;
+  if (tokenId) {
+    try {
+      const content = await Content.findOne({ tokenId });
+      if (content) {
+        return res.status(200).json({ status: content.status });
+      } else {
+        return res.status(404).json({ status: false });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error getting content status" });
+    }
+  } else {
+    return res.status(404).json({ message: "Content not found" });
   }
 });
 

@@ -73,6 +73,7 @@ export default function Profile() {
                       imageUrl={nft.data.image}
                       price={nft.price}
                       owner={nft.owner}
+                      allowed={nft.allowed}
                     />
                   ))}
                 </div>

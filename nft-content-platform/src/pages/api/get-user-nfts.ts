@@ -29,11 +29,17 @@ export default async function handler(
       getOwnedNfts.map(async (nft: any) => {
         const uri = await myContractWithSigner.tokenURI(nft.tokenId);
         const owner = await myContractWithSigner.ownerOf(nft.tokenId);
+        const allowed = await fetch(
+          "http://localhost:3010/content/status/" + nft[0]._hex.toString()
+        )
+          .then((res) => res.json())
+          .then((res) => res.status);
         return {
           tokenID: nft.tokenId,
           tokenURI: uri,
           price: ethers.utils.formatEther(nft.price),
           owner: owner,
+          allowed: allowed,
         };
       })
     );

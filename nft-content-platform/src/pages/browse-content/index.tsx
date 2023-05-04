@@ -87,6 +87,7 @@ export default function BrowseContent() {
                       imageUrl={nft.data.image}
                       price={nft.price}
                       owner={nft.owner}
+                      allowed={nft.allowed}
                     />
                   ))}
                 </div>

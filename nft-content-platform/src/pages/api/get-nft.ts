@@ -1,4 +1,4 @@
-import { Signer, ethers } from "ethers";
+import { ethers } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
 import nftMarket from "../../../public/NftMarket.json";
 
@@ -24,7 +24,6 @@ export default async function handler(
 
     const signer = provider.getSigner();
     const myContractWithSigner = myContract.connect(signer);
-    const signerAddress = await signer.getAddress();
 
     const getNftItem = await myContractWithSigner.getNftItem(id);
 
@@ -36,11 +35,15 @@ export default async function handler(
     const uri = await myContractWithSigner.tokenURI(getNftItem.tokenId);
     const owner = await myContractWithSigner.ownerOf(getNftItem.tokenId);
 
-    // if (owner !== signerAddress) {
-    //   res.status(401).json({ message: "You are not the owner of this NFT" });
-    //   console.log("signerAddress", signerAddress, "ownerAddress", owner);
-    //   return;
-    // }
+    const isNotBanned = await fetch(
+      "http://localhost:3010/content/status/" + id
+    );
+    const isNotBannedData = await isNotBanned.json();
+
+    if (!isNotBannedData.status) {
+      res.status(401).json({ message: "This token is banned." });
+      return;
+    }
 
     const nftItem = {
       tokenID: getNftItem.tokenId,
