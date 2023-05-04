@@ -3,12 +3,17 @@ import Navbar from "@/components/ui/navbar";
 import NFTCard from "@/components/ui/nft/card";
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 import { useAccount } from "wagmi";
+import { useRouter } from "next/router";
 
 export default function Profile() {
   const [domLoaded, setDomLoaded] = useState(false);
   const [isListingOpen, setIsListingOpen] = useState(false);
   const [username, setUsername] = useState("");
+  const router = useRouter();
 
   const openListingModal = () => {
     setIsListingOpen(true);
@@ -42,19 +47,28 @@ export default function Profile() {
       nfts[i].data = json;
     }
 
+    const data2 = await fetch(`http://localhost:3010/user/${address}`);
+    const json2 = await data2.json();
+    setUsername(json2.data.name);
+
     setNftData(nfts);
   };
 
   useEffect(() => {
+    if (!address) {
+      return;
+    }
     fetchNFTs();
   }, [address]);
 
   const updateUsername = async () => {
-    if (!isConnected || !address || !username) {
+    if (!username) {
+      toast.error("Please enter a valid username!");
+      fetchNFTs();
       return;
     }
 
-    const data = await fetch("http://localhost:3010/user/update", {
+    const res = await fetch("http://localhost:3010/user/update", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -64,8 +78,13 @@ export default function Profile() {
         name: username,
       }),
     });
-    const json = await data.json();
+    const json = await res.json();
     console.log(json);
+    if (res && res.status === 200) {
+      toast.success(json.message);
+    } else {
+      toast.error("Error updating username!");
+    }
   };
 
   return (
@@ -73,6 +92,18 @@ export default function Profile() {
       <Navbar />
       <div className="bg-purple-50 min-h-[75vh]">
         <div className="py-12 bg-grey-90">
+          <ToastContainer
+            position="top-right"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover={false}
+            theme="light"
+          />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-9 flex flex-col md:flex-row items-center md:items-start justify-between">
               <div>
@@ -89,11 +120,31 @@ export default function Profile() {
                   Explore the NF Access Tokens you created or purchased.
                 </span>
               </div>
+              <div className="flex flex-col items-center pt-2 md:pt-0 pl-0 md:pl-4 lg:pl-80">
+                <span className="text-sm font-bold text-black font-mono">
+                  Your Name:
+                </span>
+                {domLoaded && isConnected && (
+                  <p className="text-2xl font-bold text-black font-mono">
+                    {username === "anonymous" ||
+                      (username === "" && (
+                        <span className="text-sm font-bold text-black font-mono">
+                          (Set your name to be listed here!)
+                        </span>
+                      ))}
+                    {username !== "anonymous" && username !== "" && (
+                      <span className="text-sm font-bold text-black font-mono">
+                        {username}
+                      </span>
+                    )}
+                  </p>
+                )}
+              </div>
               <button
                 onClick={openListingModal}
-                className="mt-4 md:mt-0 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className="mt-4 md:mt-0 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
               >
-                Update Your Name
+                Update Name
               </button>
             </div>
             {domLoaded && (
@@ -159,7 +210,9 @@ export default function Profile() {
                     Update Name
                   </button>
                   <button
-                    onClick={closeListingModal}
+                    onClick={() => {
+                      closeListingModal();
+                    }}
                     type="button"
                     className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
                   >

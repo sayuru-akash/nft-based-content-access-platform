@@ -17,6 +17,7 @@ import { prepareWriteContract, writeContract } from "@wagmi/core";
 import nftMarket from "../../../public/NftMarket.json";
 import { ethers } from "ethers";
 import { v4 as uuidv4 } from "uuid";
+import { useRouter } from "next/router";
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID;
 const infuraSecret = process.env.NEXT_PUBLIC_INFURA_SECRET;
@@ -34,6 +35,7 @@ const client = create({
 
 export default function PublishContent() {
   const [domLoaded, setDomLoaded] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setDomLoaded(true);
@@ -123,7 +125,6 @@ export default function PublishContent() {
           },
           body: JSON.stringify({
             image: thumbnailUrl,
-            tokenAddress: tx,
             tokenId: tokenId,
             title: title,
             authorId: userID.data.id,
@@ -148,7 +149,7 @@ export default function PublishContent() {
 
   useEffect(() => {
     if (mintedNFTAddress) {
-      setMessage("NFT Minted Successfully at " + mintedNFTAddress + " 🎉");
+      setMessage("NFT Minted Successfully at " + mintedNFTAddress + " 🎉 ");
     }
   }, [mintedNFTAddress]);
 

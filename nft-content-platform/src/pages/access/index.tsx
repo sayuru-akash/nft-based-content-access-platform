@@ -5,6 +5,9 @@ import Navbar from "@/components/ui/navbar";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 import { useAccount } from "wagmi";
 import { prepareWriteContract, writeContract } from "@wagmi/core";
 import nftMarket from "../../../public/NftMarket.json";
@@ -123,10 +126,14 @@ export default function Access() {
         const tx = receipt.transactionHash;
         console.log("tx", tx);
       });
-      console.log("listedNft", listedNft);
-      setMessage("NFT listed successfully! 🎉");
+      if (listedNft) {
+        toast.success("NFT listed successfully!");
+      } else {
+        toast.error("NFT listing failed.");
+      }
     } catch (error: any) {
       console.log("error", error);
+      toast.error("NFT listing failed.");
     }
   };
 
@@ -183,12 +190,15 @@ export default function Access() {
           // window.open(imageUrl, "_blank");
         } catch (error) {
           console.error("Error decrypting file:", error);
+          toast.error("Error occured when decrypting file.");
         }
       } else {
-        console.log("No data found for this NF Access Token");
+        console.log("No data found for this NF access Token");
+        toast.error("No data found for this NF access Token.");
       }
     } else {
       console.log("Banned content or not authorized to access this content");
+      toast.error("Banned content or not authorized to access this content.");
     }
   };
 
@@ -199,6 +209,7 @@ export default function Access() {
         <div className="bg-purple-50 min-h-[75vh]">
           <div className="py-12 bg-grey-90">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <ToastContainer />
               <div className="block mb-9">
                 <h1 className="text-3xl font-bold">
                   <span className="text-red-500">A</span>

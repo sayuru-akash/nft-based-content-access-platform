@@ -114,7 +114,10 @@ app.get("/user/:wallet", async (req, res) => {
     if (user) {
       return res
         .status(200)
-        .json({ message: "User found", data: { id: user._id } });
+        .json({
+          message: "User found",
+          data: { id: user._id, name: user.name },
+        });
     } else {
       return res.status(404).json({ message: "User not found" });
     }
