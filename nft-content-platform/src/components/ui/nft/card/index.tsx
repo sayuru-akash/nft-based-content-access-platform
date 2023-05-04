@@ -60,16 +60,21 @@ export default function NFTCard({
         const tx = receipt.transactionHash;
         console.log("tx", tx);
       });
-      toast.success("🦄 Content bought successfully!", {
-        position: "top-right",
-        autoClose: 2800,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.success(
+        "🦄 Content bought successfully! You will be redirected to your profile soon...",
+        {
+          position: "top-right",
+          autoClose: 2800,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        }
+      );
+      await sleep(5000);
+      router.push("/profile");
     } catch (error: any) {
       console.log("error", error);
     }
@@ -78,14 +83,6 @@ export default function NFTCard({
   const handleAccessPath = () => {
     router.push(`/access/?id=${id}`);
   };
-
-  toast.onChange((payload) => {
-    if (payload.type === "success") {
-      sleep(3000).then(() => {
-        router.reload();
-      });
-    }
-  });
 
   return (
     <div className="flex-shrink-0 w-80 px-4 bg-white p-3 rounded-xl">

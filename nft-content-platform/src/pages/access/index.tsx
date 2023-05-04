@@ -128,6 +128,7 @@ export default function Access() {
       });
       if (listedNft) {
         toast.success("NFT listed successfully!");
+        fetchNFT();
       } else {
         toast.error("NFT listing failed.");
       }

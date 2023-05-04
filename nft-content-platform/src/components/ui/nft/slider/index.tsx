@@ -2,6 +2,8 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { BigNumber } from "ethers";
 import NFTCard from "../card";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function NFTSlider() {
   const [nftData, setNftData] = useState([]);
@@ -39,6 +41,18 @@ export default function NFTSlider() {
               View all
             </Link>
           </div>
+          <ToastContainer
+            position="top-right"
+            autoClose={10000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
           <div className="flex space-x-6 overflow-x-auto">
             {nftData.map((nft: any) => (
               <NFTCard

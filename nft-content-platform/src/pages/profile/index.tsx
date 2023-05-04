@@ -7,13 +7,11 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { useAccount } from "wagmi";
-import { useRouter } from "next/router";
 
 export default function Profile() {
   const [domLoaded, setDomLoaded] = useState(false);
   const [isListingOpen, setIsListingOpen] = useState(false);
   const [username, setUsername] = useState("");
-  const router = useRouter();
 
   const openListingModal = () => {
     setIsListingOpen(true);

@@ -5,9 +5,13 @@ import { BigNumber } from "ethers";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/router";
 
 export default function BrowseContent() {
   const [domLoaded, setDomLoaded] = useState(false);
+  const router = useRouter();
+  const { search } = router.query;
 
   useEffect(() => {
     setDomLoaded(true);
@@ -15,6 +19,7 @@ export default function BrowseContent() {
 
   const { address, isConnected } = useAccount();
   const [nftData, setNftData] = useState([]);
+  const [nftDataFiltered, setNftDataFiltered] = useState([]);
 
   const fetchNFTs = async () => {
     if (!isConnected || !address) {
@@ -31,13 +36,20 @@ export default function BrowseContent() {
       const json = await data.json();
       nfts[i].data = json;
     }
-
     setNftData(nfts);
+    if (!search || search === "") {
+      setNftDataFiltered(nfts);
+    } else {
+      const filteredNfts = nftData.filter((nft: any) =>
+        nft.data.name.toLowerCase().includes(search.toString().toLowerCase())
+      );
+      setNftDataFiltered(filteredNfts);
+    }
   };
 
   useEffect(() => {
     fetchNFTs();
-  }, [address]);
+  }, [address, search, isConnected, nftData]);
 
   return (
     <>
@@ -75,10 +87,30 @@ export default function BrowseContent() {
               pauseOnHover
               theme="light"
             />
+            <div className="bg-white mb-8 px-4 py-5 border-b border-gray-200 sm:px-6 rounded-2xl">
+              <div className="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+                <div className="ml-4 mt-4">
+                  <h3 className="text-lg leading-6 font-medium text-gray-700">
+                    Search content by their title...
+                  </h3>
+                </div>
+              </div>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <input
+                  id="search"
+                  value={search ? search : ""}
+                  className="form-input pt-1 pb-1 text-blue-600 font-mono block w-full text-sm sm:leading-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter search term in here to search"
+                  onChange={(e) =>
+                    router.push(`/browse-content?search=${e.target.value}`)
+                  }
+                />
+              </div>
+            </div>
             {domLoaded && (
               <div className="flex justify-center">
                 <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-12 grid-cols-1">
-                  {nftData.map((nft: any) => (
+                  {nftDataFiltered.map((nft: any) => (
                     <NFTCard
                       key={BigNumber.from(nft.tokenID)._hex}
                       id={BigNumber.from(nft.tokenID)._hex}
@@ -90,6 +122,13 @@ export default function BrowseContent() {
                       allowed={nft.allowed}
                     />
                   ))}
+                  {search && nftDataFiltered.length === 0 && (
+                    <div className="flex justify-center">
+                      <div className="text-2xl font-bold text-gray-500">
+                        No NFTs found for this search term
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

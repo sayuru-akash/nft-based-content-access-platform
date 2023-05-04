@@ -1,4 +1,15 @@
+import { useState } from "react";
+import { useRouter } from "next/router";
+
 export default function SearchBar() {
+  const [search, setSearch] = useState("");
+  const router = useRouter();
+
+  const handleSearch = (e: any) => {
+    e.preventDefault();
+    router.push(`/browse-content?search=${search}`);
+  };
+
   return (
     <div className="relative bg-cover bg-center bg-gradient-to-b from-gray-900 to-purple-900">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
@@ -48,11 +59,16 @@ export default function SearchBar() {
                   className="block w-full bg-white bg-opacity-50 py-3 pl-10 pr-4 rounded-md leading-5 text-gray-900 placeholder-gray-500 focus:outline-none focus:bg-white focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Search for NFTs"
                   type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
             </div>
             <div>
-              <button className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <button
+                onClick={handleSearch}
+                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
                 Search
               </button>
             </div>
