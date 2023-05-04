@@ -9,6 +9,8 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "@wagmi/connectors/injected";
 import { getNetwork } from "@wagmi/core";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
 
 const targetChainId = process.env.NEXT_PUBLIC_TARGET_CHAIN_ID!.toString();
 const targetChainName = process.env.NEXT_PUBLIC_TARGET_CHAIN_NAME!.toString();
@@ -21,6 +23,8 @@ function Walletbar() {
   const { disconnect } = useDisconnect();
 
   const [chainId, setChainId] = useState("0");
+
+  const router = useRouter();
 
   useEffect(() => {
     if (window.ethereum) {
@@ -47,6 +51,20 @@ function Walletbar() {
       if (isConnected) {
         fetch("http://localhost:3010/user/add/" + address)
           .then((response) => response.json())
+          .then((data) => {
+            Cookies.remove("userId");
+            Cookies.set("userId", data.data.id, {
+              sameSite: "lax",
+              expires: 1 / 24,
+            });
+            fetch("http://localhost:3010/user/status/" + data.data.id)
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.status == false) {
+                  router.push("/banned");
+                }
+              });
+          })
           .catch((error) => console.error(error));
       }
     }
