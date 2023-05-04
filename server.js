@@ -124,6 +124,32 @@ app.get("/user/:wallet", async (req, res) => {
   }
 });
 
+// Update a user's name by wallet address and return the existing user ID
+app.post("/user/update", async (req, res) => {
+  const { wallet, name } = req.body;
+  if (wallet && name) {
+    try {
+      const updateUser = await User.findOneAndUpdate(
+        { wallet },
+        { name },
+        { new: true }
+      );
+      if (updateUser) {
+        return res
+          .status(200)
+          .json({ message: "User updated", data: { id: updateUser._id } });
+      } else {
+        return res.status(404).json({ message: "User not found" });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error updating user" });
+    }
+  } else {
+    return res.status(400).json({ message: "Invalid request" });
+  }
+});
+
 // Get the status of a user by id
 app.get("/user/status/:userId", async (req, res) => {
   const userId = req.params.userId;
