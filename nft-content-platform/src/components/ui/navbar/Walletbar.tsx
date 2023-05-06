@@ -90,7 +90,13 @@ function Walletbar() {
               </Tooltip>
             </span>
           </button>
-          <button onClick={() => disconnect()}>
+          <button
+            onClick={() => {
+              disconnect();
+              Cookies.remove("userId");
+              router.reload();
+            }}
+          >
             <Tooltip content={"DISCONNECT"} placement="leftEnd" color="error">
               <StopCircleIcon className="fill-red-600 stroke-red-800 w-10 h-6 ml-4" />
             </Tooltip>

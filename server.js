@@ -9,7 +9,11 @@ const NftMarket = require("./build/contracts/NftMarket.json");
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.WEB_APP_URL,
+  })
+);
 const port = 3010;
 
 const mongoUri = process.env.MONGODB_URI;
