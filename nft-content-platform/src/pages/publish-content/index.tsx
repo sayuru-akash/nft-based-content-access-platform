@@ -17,7 +17,6 @@ import { prepareWriteContract, writeContract } from "@wagmi/core";
 import nftMarket from "../../../public/NftMarket.json";
 import { ethers } from "ethers";
 import { v4 as uuidv4 } from "uuid";
-import { useRouter } from "next/router";
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID;
 const infuraSecret = process.env.NEXT_PUBLIC_INFURA_SECRET;
@@ -35,7 +34,6 @@ const client = create({
 
 export default function PublishContent() {
   const [domLoaded, setDomLoaded] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     setDomLoaded(true);
@@ -172,6 +170,16 @@ export default function PublishContent() {
     try {
       if (!file) return;
 
+      const validImageTypes = ["image/jpeg", "image/png", "image/jpg"];
+      if (!validImageTypes.includes(file.type)) {
+        setMessage("Please select a valid image to upload.");
+        return;
+      }
+      if (file.size > 4 * 1024 * 1024) {
+        setMessage("Please select an image smaller than 4MB.");
+        return;
+      }
+
       const fileAdded = await client.add(file);
       const url = `https://ipfs.io/ipfs/${fileAdded.path}`;
 
@@ -190,6 +198,12 @@ export default function PublishContent() {
     const file = e.target.files[0];
     try {
       if (!file) return;
+
+      if (file.size > 100 * 1024 * 1024) {
+        setMessage("Please select an image smaller than 4MB.");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = async () => {
         const fileData = new Uint8Array(reader.result as ArrayBuffer);

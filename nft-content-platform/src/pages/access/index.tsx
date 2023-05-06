@@ -13,6 +13,7 @@ import { prepareWriteContract, writeContract } from "@wagmi/core";
 import nftMarket from "../../../public/NftMarket.json";
 import FourOhFour from "../404";
 import { ethers } from "ethers";
+import { filetypeextension } from "magic-bytes.js";
 
 export default function Access() {
   const router = useRouter();
@@ -172,23 +173,25 @@ export default function Access() {
           const decryptedFileUint8Array = new Uint8Array(
             decryptedFileData.split(",").map(Number)
           );
+
+          const fileType = await filetypeextension(
+            decryptedFileUint8Array as any
+          );
+
           const blob = new Blob([decryptedFileUint8Array], {
-            type: "image/png",
+            type: fileType[0],
           });
 
           const url = URL.createObjectURL(blob);
+          window.open(url, "_blank");
 
           const link = document.createElement("a");
           link.href = url;
-          link.download = "image.png";
+          link.download = `content.${fileType[0]}`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
-
-          // const urlCreator = window.URL || window.webkitURL;
-          // const imageUrl = urlCreator.createObjectURL(blob);
-          // window.open(imageUrl, "_blank");
         } catch (error) {
           console.error("Error decrypting file:", error);
           toast.error("Error occured when decrypting file.");

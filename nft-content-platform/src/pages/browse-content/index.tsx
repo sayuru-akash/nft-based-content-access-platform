@@ -9,13 +9,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/router";
 
 export default function BrowseContent() {
-  const [domLoaded, setDomLoaded] = useState(false);
   const router = useRouter();
   const { search } = router.query;
-
-  useEffect(() => {
-    setDomLoaded(true);
-  }, [domLoaded]);
 
   const { address, isConnected } = useAccount();
   const [nftData, setNftData] = useState([]);
@@ -37,7 +32,7 @@ export default function BrowseContent() {
       nfts[i].data = json;
     }
     setNftData(nfts);
-    if (!search || search === "") {
+    if (!search) {
       setNftDataFiltered(nfts);
     } else {
       const filteredNfts = nftData.filter((nft: any) =>
@@ -49,7 +44,7 @@ export default function BrowseContent() {
 
   useEffect(() => {
     fetchNFTs();
-  }, [address, search, isConnected, nftData]);
+  }, [address, isConnected, search]);
 
   return (
     <>
@@ -107,31 +102,30 @@ export default function BrowseContent() {
                 />
               </div>
             </div>
-            {domLoaded && (
-              <div className="flex justify-center">
-                <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-12 grid-cols-1">
-                  {nftDataFiltered.map((nft: any) => (
-                    <NFTCard
-                      key={BigNumber.from(nft.tokenID)._hex}
-                      id={BigNumber.from(nft.tokenID)._hex}
-                      name={nft.data.name}
-                      author={nft.data.author}
-                      imageUrl={nft.data.image}
-                      price={nft.price}
-                      owner={nft.owner}
-                      allowed={nft.allowed}
-                    />
-                  ))}
-                  {search && nftDataFiltered.length === 0 && (
-                    <div className="flex justify-center">
-                      <div className="text-2xl font-bold text-gray-500">
-                        No NFTs found for this search term
-                      </div>
+
+            <div className="flex justify-center">
+              <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-12 grid-cols-1">
+                {nftDataFiltered.map((nft: any) => (
+                  <NFTCard
+                    key={BigNumber.from(nft.tokenID)._hex}
+                    id={BigNumber.from(nft.tokenID)._hex}
+                    name={nft.data.name}
+                    author={nft.data.author}
+                    imageUrl={nft.data.image}
+                    price={nft.price}
+                    owner={nft.owner}
+                    allowed={nft.allowed}
+                  />
+                ))}
+                {search && nftDataFiltered.length === 0 && (
+                  <div className="flex justify-center">
+                    <div className="text-2xl font-bold text-gray-500">
+                      No NFTs found for this search term
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
