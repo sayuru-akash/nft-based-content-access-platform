@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "../AdminLayout";
-import { Loading } from "@nextui-org/react";
+import { Button, Loading, Modal, Text } from "@nextui-org/react";
 import { Content } from "../../../../types/Content";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -13,6 +13,7 @@ export default function ContentPage() {
   const [loading, setLoading] = useState(true);
   const [contents, setContents] = useState<Content[]>([]);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const router = useRouter();
   const { search } = router.query;
@@ -145,6 +146,20 @@ export default function ContentPage() {
     return setLoading(false);
   };
 
+  const closeModal = () => setShowModal(false);
+  const openModal = () => setShowModal(true);
+
+  const [modalContent, setModalContent] = useState<Content>({
+    _id: "",
+    tokenId: "",
+    title: "",
+    image: "",
+    createdOn: "",
+    status: false,
+    authorId: "",
+    authorStatus: false,
+  });
+
   if (!loggedIn)
     return (
       <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8"></div>
@@ -193,114 +208,167 @@ export default function ContentPage() {
                   </div>
                 </div>
               ) : (
-                <table className="min-w-full">
-                  <thead>
-                    <tr>
-                      <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                        #
-                      </th>
-                      <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                        Image
-                      </th>
-                      <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                        Token ID
-                      </th>
-                      <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                        Title
-                      </th>
-                      <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                        Author ID
-                      </th>
-                      <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                        Created On
-                      </th>
-                      <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white">
-                    {contents.map((content, index) => (
-                      <tr key={content._id} className="text-black">
-                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                          {index + 1}
-                        </td>
-                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                          <Image
-                            src={content.image}
-                            alt={content.title}
-                            height={100}
-                            width={100}
-                            className="w-20 h-20 object-cover"
-                          />
-                        </td>
-                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                          {content.tokenId}
-                        </td>
-                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                          {content.title.length > 10
-                            ? `${content.title.slice(0, 10)}..`
-                            : content.title}
-                        </td>
-                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                          {content.authorId.length > 10
-                            ? `${content.authorId.slice(0, 10)}..`
-                            : content.authorId}
-                        </td>
-                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                          {content.createdOn}
-                        </td>
-                        <td className="px-6 py-4 whitespace-no-wrap text-left border-b border-gray-200">
-                          <button className="w-full lg:w-fit bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 mr-3">
-                            View
-                          </button>
-                          {content.status && content.authorStatus ? (
-                            <button
-                              onClick={() => {
-                                handleListOrUnlist(content._id, false);
-                              }}
-                              className="w-full lg:w-fit bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 mr-3"
-                            >
-                              UnList
-                            </button>
-                          ) : null}
-
-                          {content.authorStatus && !content.status ? (
-                            <button
-                              onClick={() => {
-                                handleListOrUnlist(content._id, true);
-                              }}
-                              className="w-full lg:w-fit bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 mr-3"
-                            >
-                              List
-                            </button>
-                          ) : null}
-                          {content.authorStatus ? (
-                            <button
-                              onClick={() => {
-                                handleBlacklist(
-                                  content._id,
-                                  content.authorId,
-                                  false
-                                );
-                              }}
-                              className="w-full lg:w-fit bg-red-900 text-white font-bold py-2 px-4 rounded hover:bg-amber-500 "
-                            >
-                              Blacklist
-                            </button>
-                          ) : (
-                            <button
-                              disabled
-                              className="w-full lg:w-fit bg-gray-900 text-white font-bold py-2 px-4 rounded"
-                            >
-                              Blacklisted
-                            </button>
-                          )}
-                        </td>
+                <div>
+                  <table className="min-w-full">
+                    <thead>
+                      <tr>
+                        <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                          #
+                        </th>
+                        <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                          Image
+                        </th>
+                        <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                          Token ID
+                        </th>
+                        <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                          Title
+                        </th>
+                        <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                          Author ID
+                        </th>
+                        <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                          Created On
+                        </th>
+                        <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                          Action
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white">
+                      {contents.map((content, index) => (
+                        <tr key={content._id} className="text-black">
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            {index + 1}
+                          </td>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <Image
+                              src={content.image}
+                              alt={content.title}
+                              height={100}
+                              width={100}
+                              className="w-20 h-20 object-cover"
+                            />
+                          </td>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            {content.tokenId}
+                          </td>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            {content.title.length > 10
+                              ? `${content.title.slice(0, 10)}..`
+                              : content.title}
+                          </td>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            {content.authorId.length > 10
+                              ? `${content.authorId.slice(0, 10)}..`
+                              : content.authorId}
+                          </td>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            {content.createdOn}
+                          </td>
+                          <td className="px-6 py-4 whitespace-no-wrap text-left border-b border-gray-200">
+                            <button
+                              onClick={() => {
+                                openModal();
+                                setModalContent(content);
+                              }}
+                              className="w-full lg:w-fit bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 mr-3"
+                            >
+                              View
+                            </button>
+                            {content.status && content.authorStatus ? (
+                              <button
+                                onClick={() => {
+                                  handleListOrUnlist(content._id, false);
+                                }}
+                                className="w-full lg:w-fit bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 mr-3"
+                              >
+                                UnList
+                              </button>
+                            ) : null}
+
+                            {content.authorStatus && !content.status ? (
+                              <button
+                                onClick={() => {
+                                  handleListOrUnlist(content._id, true);
+                                }}
+                                className="w-full lg:w-fit bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 mr-3"
+                              >
+                                List
+                              </button>
+                            ) : null}
+                            {content.authorStatus ? (
+                              <button
+                                onClick={() => {
+                                  handleBlacklist(
+                                    content._id,
+                                    content.authorId,
+                                    false
+                                  );
+                                }}
+                                className="w-full lg:w-fit bg-red-900 text-white font-bold py-2 px-4 rounded hover:bg-amber-500 "
+                              >
+                                Blacklist
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="w-full lg:w-fit bg-gray-900 text-white font-bold py-2 px-4 rounded"
+                              >
+                                Blacklisted
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <Modal
+                    closeButton
+                    scroll
+                    aria-labelledby="modal-title"
+                    open={showModal}
+                    onClose={closeModal}
+                  >
+                    <Modal.Header>
+                      <Text id="modal-title" size={18}>
+                        Details on&nbsp;
+                        <Text b size={18}>
+                          {modalContent.title.length > 10
+                            ? `${modalContent.title.slice(0, 10)}..`
+                            : modalContent.title}
+                        </Text>
+                      </Text>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <Image
+                        src={modalContent.image}
+                        alt={modalContent.title}
+                        height={400}
+                        width={400}
+                        className="object-cover"
+                      />
+                      <div className="flex flex-col">
+                        Token ID: {modalContent.tokenId}
+                        <br />
+                        Title: {modalContent.title}
+                        <br />
+                        Author ID: {modalContent.authorId}
+                        <br />
+                        Created On: {modalContent.createdOn}
+                        <br />
+                        Content Status:{" "}
+                        {modalContent.status ? "Allowed" : "Unlisted"}
+                        <br />
+                        Author Status:{" "}
+                        {modalContent.authorStatus ? "Allowed" : "Banned"}
+                      </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Text>-DB ID: {modalContent._id}</Text>
+                    </Modal.Footer>
+                  </Modal>
+                </div>
               )}
             </div>
           </div>

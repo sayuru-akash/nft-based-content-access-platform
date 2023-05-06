@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import { Modal, Button } from "@nextui-org/react";
+import { Modal, Button, Text } from "@nextui-org/react";
 import Cookies from "js-cookie";
 
 export default function UsersPage() {
@@ -142,6 +142,19 @@ export default function UsersPage() {
     return setLoading(false);
   };
 
+  const [showUserModal, setShowUserModal] = useState(false);
+  const closeUserModal = () => setShowUserModal(false);
+  const openUserModal = () => setShowUserModal(true);
+
+  const [userModalContent, setUserModalContent] = useState<User>({
+    _id: "",
+    name: "",
+    wallet: "",
+    ownedContent: 0,
+    joinedOn: "",
+    status: false,
+  });
+
   if (!loggedIn)
     return (
       <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8"></div>
@@ -234,7 +247,13 @@ export default function UsersPage() {
                           {user.joinedOn}
                         </td>
                         <td className="px-6 py-4 whitespace-no-wrap text-left border-b border-gray-200">
-                          <button className="w-full lg:w-fit bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 mr-3">
+                          <button
+                            onClick={() => {
+                              setUserModalContent(user);
+                              openUserModal();
+                            }}
+                            className="w-full lg:w-fit bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 mr-3"
+                          >
                             View
                           </button>
                           {user.status ? (
@@ -294,6 +313,47 @@ export default function UsersPage() {
                             >
                               Close
                             </Button>
+                          </Modal.Footer>
+                        </Modal>
+                        <Modal
+                          closeButton
+                          aria-labelledby="modal-title"
+                          open={showUserModal}
+                          onClose={closeUserModal}
+                        >
+                          <Modal.Header>
+                            <Text id="modal-title" size={18}>
+                              Details on&nbsp;
+                              <Text b size={18}>
+                                {userModalContent.name.length > 10
+                                  ? `${userModalContent.name.slice(0, 10)}..`
+                                  : userModalContent.name}
+                              </Text>
+                            </Text>
+                          </Modal.Header>
+                          <Modal.Body>
+                            <div className="flex flex-col">
+                              <div className="flex flex-row justify-between">
+                                <Text b>Wallet:&nbsp;</Text>
+                                <Text>
+                                  {`${userModalContent.wallet.slice(
+                                    0,
+                                    9
+                                  )}...${userModalContent.wallet.slice(-9)}`}
+                                </Text>
+                              </div>
+                              <div className="flex flex-row justify-between">
+                                <Text b>Joined On:&nbsp;</Text>
+                                <Text>{userModalContent.joinedOn}</Text>
+                              </div>
+                              <div className="flex flex-row justify-between">
+                                <Text b>Created Content:&nbsp;</Text>
+                                <Text>{userModalContent.ownedContent}</Text>
+                              </div>
+                            </div>
+                          </Modal.Body>
+                          <Modal.Footer>
+                            <Text>-DB ID: {userModalContent._id}</Text>
                           </Modal.Footer>
                         </Modal>
                       </tr>
