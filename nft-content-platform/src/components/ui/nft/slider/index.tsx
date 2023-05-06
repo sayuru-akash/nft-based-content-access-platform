@@ -12,17 +12,23 @@ export default function NFTSlider() {
 
   const fetchNFTs = async () => {
     setIsLoading(true);
-    const data = await fetch("http://localhost:3000/api/get-nfts");
-    const nfts = await data.json();
+    try {
+      const data = await fetch("http://localhost:3000/api/get-nfts");
+      const nfts = await data.json();
 
-    for (let i = 0; i < nfts.length; i++) {
-      const nft = nfts[i];
-      const ipfsUri = nft.tokenURI;
-      const data = await fetch(ipfsUri);
-      const json = await data.json();
-      nfts[i].data = json;
+      for (let i = 0; i < nfts.length; i++) {
+        const nft = nfts[i];
+        const ipfsUri = nft.tokenURI;
+        const data = await fetch(ipfsUri);
+        const json = await data.json();
+        nfts[i].data = json;
+
+        setNftData(nfts);
+      }
+    } catch (e) {
+      console.log(e);
     }
-    setNftData(nfts);
+
     setIsLoading(false);
   };
 
