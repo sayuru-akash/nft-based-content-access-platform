@@ -4,11 +4,14 @@ import { BigNumber } from "ethers";
 import NFTCard from "../card";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Loading } from "@nextui-org/react";
 
 export default function NFTSlider() {
   const [nftData, setNftData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchNFTs = async () => {
+    setIsLoading(true);
     const data = await fetch("http://localhost:3000/api/get-nfts");
     const nfts = await data.json();
 
@@ -20,6 +23,7 @@ export default function NFTSlider() {
       nfts[i].data = json;
     }
     setNftData(nfts);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -34,6 +38,9 @@ export default function NFTSlider() {
             <h2 className="text-lg font-medium text-gray-900">
               Latest Additions
             </h2>
+            {isLoading && (
+              <Loading color="primary" size="sm" className="ml-2" />
+            )}
             <Link
               href="/browse-content"
               className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -54,18 +61,19 @@ export default function NFTSlider() {
             theme="light"
           />
           <div className="flex space-x-6 overflow-x-auto">
-            {nftData.map((nft: any) => (
-              <NFTCard
-                key={BigNumber.from(nft.tokenID)._hex}
-                id={BigNumber.from(nft.tokenID)._hex}
-                name={nft.data.name}
-                author={nft.data.author}
-                imageUrl={nft.data.image}
-                price={nft.price}
-                owner={nft.owner}
-                allowed={nft.allowed}
-              />
-            ))}
+            {nftData.length > 0 &&
+              nftData.map((nft: any) => (
+                <NFTCard
+                  key={BigNumber.from(nft.tokenID)._hex}
+                  id={BigNumber.from(nft.tokenID)._hex}
+                  name={nft.data.name}
+                  author={nft.data.author}
+                  imageUrl={nft.data.image}
+                  price={nft.price}
+                  owner={nft.owner}
+                  allowed={nft.allowed}
+                />
+              ))}
           </div>
         </div>
       </div>

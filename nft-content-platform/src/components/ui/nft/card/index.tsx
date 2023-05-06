@@ -11,6 +11,8 @@ import nftMarket from "../../../../../public/NftMarket.json";
 import router from "next/router";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
+import { Loading } from "@nextui-org/react";
 
 interface NFTCardProps {
   id: string;
@@ -32,12 +34,15 @@ export default function NFTCard({
   allowed,
 }: NFTCardProps) {
   const { address, isConnected } = useAccount();
+  const [isBuying, setIsBuying] = useState(false);
 
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
   const buyAccessNFT = async () => {
+    setIsBuying(true);
     if (!isConnected) {
       console.log("Please connect your wallet");
+      setIsBuying(false);
       return;
     }
 
@@ -74,9 +79,21 @@ export default function NFTCard({
         }
       );
       await sleep(5000);
+      setIsBuying(false);
       router.push("/profile");
     } catch (error: any) {
       console.log("error", error);
+      toast.error(error.message, {
+        position: "top-right",
+        autoClose: 2800,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      setIsBuying(false);
     }
   };
 
@@ -113,6 +130,7 @@ export default function NFTCard({
               className="h-5 w-5"
             />
           </div>
+          {isBuying && <Loading color="primary" size="sm" className="ml-4" />}
           {!allowed && (
             <div className="ml-auto flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               Banned

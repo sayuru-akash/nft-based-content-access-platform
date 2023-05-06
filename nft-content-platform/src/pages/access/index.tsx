@@ -14,10 +14,13 @@ import nftMarket from "../../../public/NftMarket.json";
 import FourOhFour from "../404";
 import { ethers } from "ethers";
 import { filetypeextension } from "magic-bytes.js";
+import { Loading } from "@nextui-org/react";
 
 export default function Access() {
   const router = useRouter();
   const { id } = router.query;
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { address, isConnected } = useAccount();
   const [authorized, isAuthorized] = useState(false);
@@ -47,13 +50,12 @@ export default function Access() {
   };
 
   const fetchNFT = async () => {
-    if (!isConnected || !address) {
+    setIsLoading(true);
+    if (!isConnected || !address || !id) {
+      setIsLoading(false);
       return;
     }
 
-    if (!id) {
-      return;
-    }
     const data = await fetch(`/api/get-nft?id=${id}`);
 
     if (data.status === 401) {
@@ -61,18 +63,21 @@ export default function Access() {
       setMessage(
         "Sorry, this content has been banned from the platform due to a violation of our terms of service. Please contact us if you believe this is a mistake."
       );
+      setIsLoading(false);
       return;
     } else if (data.status === 404) {
       isAuthorized(false);
       setMessage(
         "Sorry, we could not find the NFT you are looking for. Please check the ID and try again."
       );
+      setIsLoading(false);
       return;
     } else if (data.status === 500) {
       isAuthorized(false);
       setMessage(
         "Sorry, we could not fetch the NFT you are looking at the moment. Please try again later. "
       );
+      setIsLoading(false);
       return;
     }
 
@@ -83,6 +88,7 @@ export default function Access() {
         setMessage(
           "Sorry, you are not the owner of this content. Please try again with the correct wallet."
         );
+        setIsLoading(false);
         return;
       }
       isAuthorized(true);
@@ -96,6 +102,7 @@ export default function Access() {
 
     setNftData(nft);
     setListingPrice(nft.price);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -103,8 +110,10 @@ export default function Access() {
   }, [address, id, isConnected, isAuthorized, message]);
 
   const listAccessNFT = async (listingPrice: number) => {
+    setIsLoading(true);
     if (!isConnected) {
       console.log("Wallet not connected.");
+      setIsLoading(false);
       return;
     }
 
@@ -137,11 +146,14 @@ export default function Access() {
       console.log("error", error);
       toast.error("NFT listing failed.");
     }
+    setIsLoading(false);
   };
 
   const accessContent = async () => {
+    setIsLoading(true);
     if (!isConnected) {
       console.log("Wallet not connected.");
+      setIsLoading(false);
       return;
     }
 
@@ -204,6 +216,7 @@ export default function Access() {
       console.log("Banned content or not authorized to access this content");
       toast.error("Banned content or not authorized to access this content.");
     }
+    setIsLoading(false);
   };
 
   return (
@@ -215,22 +228,27 @@ export default function Access() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <ToastContainer />
               <div className="block mb-9">
-                <h1 className="text-3xl font-bold">
-                  <span className="text-red-500">A</span>
-                  <span className="text-orange-500">c</span>
-                  <span className="text-green-500">c</span>
-                  <span className="text-blue-500">e</span>
-                  <span className="text-indigo-500">s</span>
-                  <span className="text-purple-500">s</span>
-                  <span className="text-orange-500"> </span>
-                  <span className="text-orange-500">C</span>
-                  <span className="text-red-500">o</span>
-                  <span className="text-pink-500">n</span>
-                  <span className="text-green-500">t</span>
-                  <span className="text-blue-500">e</span>
-                  <span className="text-indigo-500">n</span>
-                  <span className="text-purple-500">t</span>
-                </h1>
+                <div className="flex">
+                  <h1 className="text-3xl font-bold">
+                    <span className="text-red-500">A</span>
+                    <span className="text-orange-500">c</span>
+                    <span className="text-green-500">c</span>
+                    <span className="text-blue-500">e</span>
+                    <span className="text-indigo-500">s</span>
+                    <span className="text-purple-500">s</span>
+                    <span className="text-orange-500"> </span>
+                    <span className="text-orange-500">C</span>
+                    <span className="text-red-500">o</span>
+                    <span className="text-pink-500">n</span>
+                    <span className="text-green-500">t</span>
+                    <span className="text-blue-500">e</span>
+                    <span className="text-indigo-500">n</span>
+                    <span className="text-purple-500">t</span>
+                  </h1>
+                  {isLoading && (
+                    <Loading color="primary" size="md" className="ml-2" />
+                  )}
+                </div>
                 <span className="text-sm font-medium text-black">
                   Access your exclusive content here by checking in with your
                   wallet to verify your ownership.

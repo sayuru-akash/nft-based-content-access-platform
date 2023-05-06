@@ -7,11 +7,14 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { useAccount } from "wagmi";
+import { Card, Text, Loading } from "@nextui-org/react";
 
 export default function Profile() {
   const [domLoaded, setDomLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isListingOpen, setIsListingOpen] = useState(false);
   const [username, setUsername] = useState("");
+  const [nftData, setNftData] = useState([]);
 
   const openListingModal = () => {
     setIsListingOpen(true);
@@ -25,10 +28,18 @@ export default function Profile() {
   }, [domLoaded]);
 
   const { address, isConnected } = useAccount();
-  const [nftData, setNftData] = useState([]);
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    if (isConnected) {
+      setConnected(true);
+    }
+  }, [isConnected]);
 
   const fetchNFTs = async () => {
+    setIsLoading(true);
     if (!isConnected || !address) {
+      setIsLoading(false);
       return;
     }
 
@@ -50,6 +61,7 @@ export default function Profile() {
     setUsername(json2.data.name);
 
     setNftData(nfts);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -60,9 +72,11 @@ export default function Profile() {
   }, [address]);
 
   const updateUsername = async () => {
+    setIsLoading(true);
     if (!username) {
       toast.error("Please enter a valid username!");
       fetchNFTs();
+      setIsLoading(false);
       return;
     }
 
@@ -83,6 +97,7 @@ export default function Profile() {
     } else {
       toast.error("Error updating username!");
     }
+    setIsLoading(false);
   };
 
   return (
@@ -105,61 +120,84 @@ export default function Profile() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-9 flex flex-col md:flex-row items-center md:items-start justify-between">
               <div>
-                <h1 className="text-3xl font-bold">
-                  <span className="text-red-500">P</span>
-                  <span className="text-orange-500">r</span>
-                  <span className="text-green-500">o</span>
-                  <span className="text-blue-500">f</span>
-                  <span className="text-indigo-500">i</span>
-                  <span className="text-purple-500">l</span>
-                  <span className="text-orange-500">e</span>
-                </h1>
+                <div className="flex">
+                  <h1 className="text-3xl font-bold">
+                    <span className="text-red-500">P</span>
+                    <span className="text-orange-500">r</span>
+                    <span className="text-green-500">o</span>
+                    <span className="text-blue-500">f</span>
+                    <span className="text-indigo-500">i</span>
+                    <span className="text-purple-500">l</span>
+                    <span className="text-orange-500">e</span>
+                  </h1>
+                  {isLoading && (
+                    <Loading color="primary" size="md" className="ml-2" />
+                  )}
+                </div>
                 <span className="text-sm font-bold text-black">
                   Explore the NF Access Tokens you created or purchased.
                 </span>
               </div>
-              <div className="flex flex-col items-center pt-2 md:pt-0 pl-0 md:pl-4 lg:pl-80">
-                <span className="text-sm font-bold text-black font-mono">
-                  Your Name:
-                </span>
-                {domLoaded && isConnected && (
-                  <p className="text-2xl font-bold text-black font-mono">
-                    {username === "anonymous" ||
-                      (username === "" && (
-                        <span className="text-sm font-bold text-black font-mono">
-                          (Set your name to be listed here!)
-                        </span>
-                      ))}
-                    {username !== "anonymous" && username !== "" && (
-                      <span className="text-sm font-bold text-black font-mono">
-                        {username}
-                      </span>
+              {connected && (
+                <div className="flex">
+                  <div className="flex flex-col items-center pt-2 md:pt-0 pl-0 md:pl-4 lg:pl-80">
+                    <span className="text-sm font-bold text-black font-mono">
+                      Your Name:
+                    </span>
+                    {domLoaded && connected && (
+                      <p className="text-2xl font-bold text-black font-mono">
+                        {username === "anonymous" ||
+                          (username === "" && (
+                            <span className="text-sm font-bold text-black font-mono">
+                              (Set your name to be listed here!)
+                            </span>
+                          ))}
+                        {username !== "anonymous" && username !== "" && (
+                          <span className="text-sm font-bold text-black font-mono">
+                            {username}
+                          </span>
+                        )}
+                      </p>
                     )}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={openListingModal}
-                className="mt-4 md:mt-0 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Update Name
-              </button>
+                  </div>
+                  <button
+                    onClick={openListingModal}
+                    className="ml-8 md:mt-0 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Update Name
+                  </button>
+                </div>
+              )}
             </div>
+            {!connected && (
+              <div className="flex justify-center">
+                <div className="flex flex-col items-center">
+                  <Card isHoverable variant="bordered">
+                    <Card.Body>
+                      <Text>
+                        Please connect your wallet to view your profile!
+                      </Text>
+                    </Card.Body>
+                  </Card>
+                </div>
+              </div>
+            )}
             {domLoaded && (
               <div className="flex justify-center">
                 <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-12 grid-cols-1">
-                  {nftData.map((nft: any) => (
-                    <NFTCard
-                      key={BigNumber.from(nft.tokenID)._hex}
-                      id={BigNumber.from(nft.tokenID)._hex}
-                      name={nft.data.name}
-                      author={nft.data.author}
-                      imageUrl={nft.data.image}
-                      price={nft.price}
-                      owner={nft.owner}
-                      allowed={nft.allowed}
-                    />
-                  ))}
+                  {nftData.length > 0 &&
+                    nftData.map((nft: any) => (
+                      <NFTCard
+                        key={BigNumber.from(nft.tokenID)._hex}
+                        id={BigNumber.from(nft.tokenID)._hex}
+                        name={nft.data.name}
+                        author={nft.data.author}
+                        imageUrl={nft.data.image}
+                        price={nft.price}
+                        owner={nft.owner}
+                        allowed={nft.allowed}
+                      />
+                    ))}
                 </div>
               </div>
             )}

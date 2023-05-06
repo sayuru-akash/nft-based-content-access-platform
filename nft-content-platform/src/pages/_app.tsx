@@ -4,6 +4,7 @@ import { WagmiConfig, createClient } from "wagmi";
 import { configureChains } from "@wagmi/core";
 import { localhost, mainnet, sepolia } from "@wagmi/core/chains";
 import { publicProvider } from "@wagmi/core/providers/public";
+import ErrorBoundary from "./errorBoundry";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [localhost, mainnet, sepolia],
@@ -18,8 +19,10 @@ const web3Client = createClient({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig client={web3Client}>
-      <Component {...pageProps} />
-    </WagmiConfig>
+    <ErrorBoundary fallback={<h1>Something went wrong!</h1>}>
+      <WagmiConfig client={web3Client}>
+        <Component {...pageProps} />
+      </WagmiConfig>
+    </ErrorBoundary>
   );
 }
