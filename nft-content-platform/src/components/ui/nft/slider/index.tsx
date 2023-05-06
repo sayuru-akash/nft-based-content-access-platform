@@ -22,9 +22,9 @@ export default function NFTSlider() {
         const data = await fetch(ipfsUri);
         const json = await data.json();
         nfts[i].data = json;
-
-        setNftData(nfts);
       }
+
+      setNftData(nfts);
     } catch (e) {
       console.log(e);
     }
