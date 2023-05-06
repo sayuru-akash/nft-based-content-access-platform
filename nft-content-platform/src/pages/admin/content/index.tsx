@@ -29,7 +29,7 @@ export default function ContentPage() {
 
   const fetchContent = async () => {
     try {
-      let url = "http://localhost:3010/contents";
+      let url = process.env.NEXT_PUBLIC_SERVER_URL + "/contents";
       if (search) {
         url += `?search=${search}`;
       }
@@ -54,13 +54,16 @@ export default function ContentPage() {
   const handleListOrUnlist = async (contentId: string, status: boolean) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3010/content/status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ contentId, status }),
-      });
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_SERVER_URL + "/content/status",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ contentId, status }),
+        }
+      );
       const data = await res.json();
       const message = data.message;
       if (res.status === 200) {
@@ -104,13 +107,16 @@ export default function ContentPage() {
     setLoading(true);
     await handleListOrUnlist(contentId, status);
     try {
-      const res = await fetch("http://localhost:3010/user/status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId, status }),
-      });
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_SERVER_URL + "/user/status",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId, status }),
+        }
+      );
       const data = await res.json();
       const message = data.message;
       if (res.status === 200) {

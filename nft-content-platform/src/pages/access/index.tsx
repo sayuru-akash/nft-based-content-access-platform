@@ -162,7 +162,9 @@ export default function Access() {
     );
     const authorized = await authorize.json();
     if (authorized.tokenID) {
-      const response = await fetch(`http://localhost:3010/content/${id}`);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/content/${id}`
+      );
       const data = await response.json();
       if (data) {
         const tokenURI = authorized.tokenURI;

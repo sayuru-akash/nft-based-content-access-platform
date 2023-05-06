@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 async function isWalletBanned(request: NextRequest) {
   let cookie = request.cookies.get("userId")?.value;
   if (cookie) {
-    const req = await fetch("http://localhost:3010/user/status/" + cookie);
+    const req = await fetch(
+      process.env.NEXT_PUBLIC_SERVER_URL + "/user/status/" + cookie
+    );
     const res = await req.json();
     if (res.status === false) {
       return true;
@@ -17,7 +19,7 @@ async function isWalletBanned(request: NextRequest) {
 export async function middleware(request: NextRequest) {
   const bannedWallet = await isWalletBanned(request);
   if (bannedWallet) {
-    return NextResponse.redirect("http://localhost:3000/banned");
+    return NextResponse.redirect("/banned");
   } else {
     return NextResponse.next();
   }

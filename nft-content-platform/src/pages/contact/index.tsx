@@ -35,7 +35,7 @@ export default function Contact() {
       return;
     }
 
-    const res = await fetch(`http://localhost:3010/contact`, {
+    const res = await fetch(process.env.NEXT_PUBLIC_SERVER_URL+"/contact", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

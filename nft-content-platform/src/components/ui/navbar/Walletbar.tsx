@@ -49,7 +49,7 @@ function Walletbar() {
   useEffect(() => {
     if (window.ethereum) {
       if (isConnected) {
-        fetch("http://localhost:3010/user/add/" + address)
+        fetch(process.env.NEXT_PUBLIC_SERVER_URL + "/user/add/" + address)
           .then((response) => response.json())
           .then((data) => {
             Cookies.remove("userId");
@@ -57,7 +57,11 @@ function Walletbar() {
               sameSite: "lax",
               expires: 1 / 24,
             });
-            fetch("http://localhost:3010/user/status/" + data.data.id)
+            fetch(
+              process.env.NEXT_PUBLIC_SERVER_URL +
+                "/user/status/" +
+                data.data.id
+            )
               .then((response) => response.json())
               .then((data) => {
                 if (data.status == false) {

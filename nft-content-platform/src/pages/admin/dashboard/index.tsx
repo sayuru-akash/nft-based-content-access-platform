@@ -33,23 +33,23 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        let data = await fetch("http://localhost:3010/users/count").then(
-          (res) => res.json()
-        );
+        let data = await fetch(
+          process.env.NEXT_PUBLIC_SERVER_URL + "/users/count"
+        ).then((res) => res.json());
         setUsersCount(data.count);
         setUsersLast24h(data.countLast24h);
-        data = await fetch("http://localhost:3010/contents/count").then((res) =>
-          res.json()
-        );
+        data = await fetch(
+          process.env.NEXT_PUBLIC_SERVER_URL + "/contents/count"
+        ).then((res) => res.json());
         setContentCount(data.count);
         setContentLast24h(data.countLast24h);
-        data = await fetch("http://localhost:3010/contents/sale-count").then(
-          (res) => res.json()
-        );
+        data = await fetch(
+          process.env.NEXT_PUBLIC_SERVER_URL + "/contents/sale-count"
+        ).then((res) => res.json());
         setContentSalesCount(data.count);
-        data = await fetch("http://localhost:3010/contents").then((res) =>
-          res.json()
-        );
+        data = await fetch(
+          process.env.NEXT_PUBLIC_SERVER_URL + "/contents"
+        ).then((res) => res.json());
         const formattedContent = data
           .slice(data.length - 5)
           .map((content: Content) => ({

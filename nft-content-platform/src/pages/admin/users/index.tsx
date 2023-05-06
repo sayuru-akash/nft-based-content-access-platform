@@ -36,7 +36,7 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      let url = "http://localhost:3010/users";
+      let url = process.env.NEXT_PUBLIC_SERVER_URL + "/users";
       if (search) {
         url += `?search=${search}`;
       }
@@ -61,13 +61,16 @@ export default function UsersPage() {
   const handleBanOrUnban = async (userId: string, status: boolean) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3010/user/status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId, status }),
-      });
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_SERVER_URL + "/user/status",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId, status }),
+        }
+      );
       const data = await res.json();
       const message = data.message;
       if (res.status === 200) {
@@ -106,7 +109,9 @@ export default function UsersPage() {
   const handleDelete = async (userId: string) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3010/user/delete/" + userId);
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_SERVER_URL + "/user/delete/" + userId
+      );
       const data = await res.json();
       const message = data.message;
       if (res.status === 200) {

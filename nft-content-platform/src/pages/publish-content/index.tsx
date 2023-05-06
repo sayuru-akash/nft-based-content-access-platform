@@ -114,29 +114,34 @@ export default function PublishContent() {
         }
 
         const allOwnedNfts = await fetch(
-          `http://localhost:3000/api/get-user-nfts?address=${address}`
+          `/api/get-user-nfts?address=${address}`
         );
         const nfts = await allOwnedNfts.json();
         const tokenId = nfts[nfts.length - 1].tokenID.hex.toString();
 
-        const userID = await fetch("http://localhost:3010/user/add/" + address)
+        const userID = await fetch(
+          process.env.NEXT_PUBLIC_SERVER_URL + "/user/add/" + address
+        )
           .then((response) => response.json())
           .then((data) => data)
           .catch((error) => console.error(error));
 
-        const contentID = await fetch("http://localhost:3010/content/add", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            image: thumbnailUrl,
-            tokenId: tokenId,
-            title: title,
-            authorId: userID.data.id,
-            encKey: vUID,
-          }),
-        });
+        const contentID = await fetch(
+          process.env.NEXT_PUBLIC_SERVER_URL + "/content/add",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              image: thumbnailUrl,
+              tokenId: tokenId,
+              title: title,
+              authorId: userID.data.id,
+              encKey: vUID,
+            }),
+          }
+        );
 
         const contentIDData = await contentID.json();
         if (contentIDData && contentIDData.newContentId) {
@@ -338,9 +343,7 @@ export default function PublishContent() {
                               name="wallet_address"
                               id="wallet_address"
                               style={{ display: "none" }}
-                              defaultValue={
-                                address && connected ? address : ""
-                              }
+                              defaultValue={address && connected ? address : ""}
                             />
                           </div>
                         </div>

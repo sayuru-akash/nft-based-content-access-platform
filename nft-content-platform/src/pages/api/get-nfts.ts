@@ -30,7 +30,9 @@ export default async function handler(
         const uri = await myContractWithSigner.tokenURI(nft.tokenId);
         const owner = await myContractWithSigner.ownerOf(nft.tokenId);
         const allowed = await fetch(
-          "http://localhost:3010/content/status/" + nft[0]._hex.toString()
+          process.env.NEXT_PUBLIC_SERVER_URL +
+            "/content/status/" +
+            nft[0]._hex.toString()
         )
           .then((res) => res.json())
           .then((res) => res.status);

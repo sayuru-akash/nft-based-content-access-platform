@@ -25,13 +25,16 @@ export default function Login() {
 
   const handleLogin = async () => {
     setIsLoading(true);
-    const response = await fetch("http://localhost:3010/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_SERVER_URL + "/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      }
+    );
 
     if (response.status === 200) {
       Cookies.remove("userId");

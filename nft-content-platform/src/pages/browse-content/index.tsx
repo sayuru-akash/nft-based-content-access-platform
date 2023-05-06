@@ -33,7 +33,7 @@ export default function BrowseContent() {
       return;
     }
 
-    const data = await fetch("http://localhost:3000/api/get-nfts");
+    const data = await fetch("/api/get-nfts");
     const nfts = await data.json();
 
     for (let i = 0; i < nfts.length; i++) {

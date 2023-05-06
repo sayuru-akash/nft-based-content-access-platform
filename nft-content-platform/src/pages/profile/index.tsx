@@ -43,9 +43,7 @@ export default function Profile() {
       return;
     }
 
-    const data = await fetch(
-      `http://localhost:3000/api/get-user-nfts?address=${address}`
-    );
+    const data = await fetch(`/api/get-user-nfts?address=${address}`);
     const nfts = await data.json();
 
     for (let i = 0; i < nfts.length; i++) {
@@ -56,7 +54,9 @@ export default function Profile() {
       nfts[i].data = json;
     }
 
-    const data2 = await fetch(`http://localhost:3010/user/${address}`);
+    const data2 = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/user/${address}`
+    );
     const json2 = await data2.json();
     setUsername(json2.data.name);
 
@@ -80,16 +80,19 @@ export default function Profile() {
       return;
     }
 
-    const res = await fetch("http://localhost:3010/user/update", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        wallet: address,
-        name: username,
-      }),
-    });
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_SERVER_URL + "/user/update",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          wallet: address,
+          name: username,
+        }),
+      }
+    );
     const json = await res.json();
     console.log(json);
     if (res && res.status === 200) {
