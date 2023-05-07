@@ -3,7 +3,10 @@
     "prettier-contracts": "prettier --write 'contracts/**/*.sol'",
     "solhint-contracts": "solhint 'contracts/**/*.sol'",
     "test-dev": "hardhat test --network sepolia",
-    "test-local": "hardhat test --network ganache"
+    "test-local": "hardhat test --network ganache",
+        "build": "npm run build:client && npm run build:server",
+    "build:client": "webpack --config webpack.client.js",
+    "build:server": "webpack --config webpack.server.js"
   },
   "dependencies": {
     "@babel/core": "^7.21.4",
