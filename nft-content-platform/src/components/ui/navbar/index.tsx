@@ -24,7 +24,7 @@ const aboutMegaMenu = [
   {
     name: "Learn More",
     description: "Learn more about publishing on our platform",
-    href: "/learn-more",
+    href: "/learn-more.pdf",
     icon: CursorArrowRaysIcon,
   },
 ];

@@ -202,7 +202,7 @@ app.get("/users/count", async (req, res) => {
   }
 });
 
-// Ban or unban a user
+// Ban or unban a user by user ID and update the status of all their content accordingly
 app.post("/user/status", async (req, res) => {
   const { userId, status } = req.body;
   const user = await User.findOne({ _id: userId });
@@ -212,6 +212,15 @@ app.post("/user/status", async (req, res) => {
     } else {
       user.status = status;
       await user.save();
+
+      try {
+        await Content.updateMany({ authorId: userId }, { status });
+      } catch (err) {
+        return res.status(500).json({
+          message: "User status may have changed but error occurred while updating user's content",
+        });
+      }
+
       return res.status(200).json({ message: "User status updated" });
     }
   } else {
