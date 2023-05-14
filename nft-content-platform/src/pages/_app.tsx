@@ -5,6 +5,7 @@ import { configureChains } from "@wagmi/core";
 import { localhost, mainnet, sepolia } from "@wagmi/core/chains";
 import { publicProvider } from "@wagmi/core/providers/public";
 import ErrorBoundary from "./errorBoundry";
+import { Analytics } from "@vercel/analytics/react";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [localhost, mainnet, sepolia],
@@ -22,6 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <ErrorBoundary fallback={<h1>Something went wrong!</h1>}>
       <WagmiConfig client={web3Client}>
         <Component {...pageProps} />
+        <Analytics />
       </WagmiConfig>
     </ErrorBoundary>
   );
