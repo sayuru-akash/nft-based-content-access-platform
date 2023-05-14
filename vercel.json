@@ -2,9 +2,11 @@
     "version": 2,
     "name": "cnft-server",
     "builds": [
-       { "src": "server.js", "use": "@vercel/node" }
-    ],
+       { "src": "server.js", "use": "@vercel/node" },
+       { "next": "next.config.js", "use": "@vercel/next"}
+    ], 
     "routes": [
-       { "src": "/(.*)", "dest": "/server.js" }
+       { "src": "/(.*)", "dest": "/server.js" },
+       { "next": "/(.*)", "dest": "/nft-content-platform/next.config.js"}
     ]
  }
