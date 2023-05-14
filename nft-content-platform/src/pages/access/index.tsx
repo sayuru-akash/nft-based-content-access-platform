@@ -410,7 +410,7 @@ export default function Access() {
                 </h3>
                 <div className="flex items-center text-blue-800 mr-4 mt-4">
                   <img
-                    src="https://cdn.worldvectorlogo.com/logos/ethereum-eth.svg"
+                    src="/imgs/ethereum-eth.svg"
                     alt="Ethereum Logo"
                     className="w-6 h-6 mr-2"
                   />
