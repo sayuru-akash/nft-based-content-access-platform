@@ -1,5 +1,5 @@
 {
-    "version": 3,
+    "version": 2,
     "name": "cnft-server",
     "builds": [
        { "src": "server.js", "use": "@vercel/node" }
