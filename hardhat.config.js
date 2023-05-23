@@ -1,6 +1,7 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-truffle5");
+require("@nomicfoundation/hardhat-verify");
 
 module.exports = {
   solidity: "0.8.19",
@@ -15,7 +16,13 @@ module.exports = {
     },
     sepolia: {
       url: process.env.ALCHEMY_SEPOLIA_URL,
-      accounts: [process.env.METAMASK_WALLET_PRIVATE_KEY],
+      accounts: [
+        process.env.METAMASK_WALLET_PRIVATE_KEY,
+        process.env.METAMASK_WALLET_PRIVATE_KEY_2,
+      ],
     },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 };
