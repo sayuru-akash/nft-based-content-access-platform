@@ -49,7 +49,8 @@ export default function NFTCard({
     const contract = nftMarket;
 
     const config = await prepareWriteContract({
-      address: "0x82E9A535DE8148505BD1F2E0642193737440b044",
+      address: process.env
+        .NEXT_PUBLIC_DEPLOYED_CONTRACT_ADDRESS as "0x${string}",
       functionName: "buyNft",
       args: [id],
       overrides: {

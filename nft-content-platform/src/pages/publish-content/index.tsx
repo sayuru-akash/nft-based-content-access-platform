@@ -94,7 +94,8 @@ export default function PublishContent() {
     console.log("Metadata IPFS URI: ", url);
 
     const config = await prepareWriteContract({
-      address: "0x82E9A535DE8148505BD1F2E0642193737440b044",
+      address: process.env
+      .NEXT_PUBLIC_DEPLOYED_CONTRACT_ADDRESS as "0x${string}",
       functionName: "mintToken",
       args: [url, ethers.utils.parseEther(price.toString())],
       overrides: {

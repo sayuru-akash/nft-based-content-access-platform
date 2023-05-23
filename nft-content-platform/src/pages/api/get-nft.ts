@@ -8,11 +8,23 @@ export default async function handler(
 ) {
   try {
     const myContractABI = nftMarket.abi;
-    const myContractAddress = "0x82E9A535DE8148505BD1F2E0642193737440b044";
+    const myContractAddress = process.env
+      .NEXT_PUBLIC_DEPLOYED_CONTRACT_ADDRESS as "0x${string}";
 
-    const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545"
+    // const provider = new ethers.providers.JsonRpcProvider(
+    //   "http://127.0.0.1:7545"
+    // );
+
+    const provider = new ethers.providers.InfuraProvider("sepolia", {
+      projectId: process.env.INFURA_API_KEY,
+      projectSecret: process.env.INFURA_API_SECRET,
+    });
+
+    let wallet = new ethers.Wallet(
+      process.env.WALLET_PRIVATE_KEY as string,
+      provider
     );
+    const signer = wallet.connect(provider);
 
     const myContract = new ethers.Contract(
       myContractAddress,
@@ -22,7 +34,7 @@ export default async function handler(
 
     const { id } = req.query as { id: string };
 
-    const signer = provider.getSigner();
+    // const signer = provider.getSigner();
     const myContractWithSigner = myContract.connect(signer);
 
     const getNftItem = await myContractWithSigner.getNftItem(id);

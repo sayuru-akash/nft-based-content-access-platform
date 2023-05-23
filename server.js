@@ -20,7 +20,7 @@ const mongoUri = process.env.MONGODB_URI;
 const ganacheUrl = process.env.GANACHE_URL;
 
 const web3 = new Web3(ganacheUrl);
-const CONTRACT_ADDRESS = "0x82E9A535DE8148505BD1F2E0642193737440b044";
+const CONTRACT_ADDRESS = process.env.DEPLOYED_CONTRACT_ADDRESS;
 const CONTRACT_INSTANCE = new web3.eth.Contract(
   NftMarket.abi,
   CONTRACT_ADDRESS
