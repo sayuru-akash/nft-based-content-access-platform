@@ -43,6 +43,7 @@ export default function Profile() {
       return;
     }
 
+    try{
     const data = await fetch(`/api/get-user-nfts?address=${address}`);
     const nfts = await data.json();
 
@@ -62,6 +63,9 @@ export default function Profile() {
 
     setNftData(nfts);
     setIsLoading(false);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   useEffect(() => {
