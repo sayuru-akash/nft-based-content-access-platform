@@ -20,6 +20,7 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("Access-Control-Allow-Origin", "*");
   requestHeaders.set("ngrok-skip-browser-warning", "true");
+  requestHeaders.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 
   const bannedWallet = await isWalletBanned(request);
   if (bannedWallet) {
