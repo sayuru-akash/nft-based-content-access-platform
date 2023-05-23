@@ -44,8 +44,11 @@ export default async function handler(
         const allowed = await fetch(
           process.env.NEXT_PUBLIC_SERVER_URL +
             "/content/status/" +
-            nft[0]._hex.toString()
-        )
+            nft[0]._hex.toString(),{
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+            },
+      })
           .then((res) => res.json())
           .then((res) => res.status);
 
