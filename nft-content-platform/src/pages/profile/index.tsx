@@ -43,11 +43,7 @@ export default function Profile() {
       return;
     }
 
-    const data = await fetch(`/api/get-user-nfts?address=${address}`, {
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-      },
-    });
+    const data = await fetch(`/api/get-user-nfts?address=${address}`);
     const nfts = await data.json();
 
     for (let i = 0; i < nfts.length; i++) {
@@ -59,12 +55,7 @@ export default function Profile() {
     }
 
     const data2 = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/user/${address}`,
-      {
-        headers: {
-          "ngrok-skip-browser-warning": "true",
-        },
-      }
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/user/${address}`
     );
     const json2 = await data2.json();
     setUsername(json2.data.name);
@@ -95,7 +86,6 @@ export default function Profile() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
           wallet: address,

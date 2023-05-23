@@ -17,6 +17,10 @@ async function isWalletBanned(request: NextRequest) {
 }
 
 export async function middleware(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("Access-Control-Allow-Origin", "*");
+  requestHeaders.set("ngrok-skip-browser-warning", "true");
+
   const bannedWallet = await isWalletBanned(request);
   if (bannedWallet) {
     return NextResponse.redirect("/banned");
