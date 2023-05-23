@@ -64,6 +64,7 @@ export default function Profile() {
     setNftData(nfts);
     setIsLoading(false);
     } catch (e) {
+      setIsLoading(false);
       console.log(e);
     }
   };
