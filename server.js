@@ -217,7 +217,8 @@ app.post("/user/status", async (req, res) => {
         await Content.updateMany({ authorId: userId }, { status });
       } catch (err) {
         return res.status(500).json({
-          message: "User status may have changed but error occurred while updating user's content",
+          message:
+            "User status may have changed but error occurred while updating user's content",
         });
       }
 
