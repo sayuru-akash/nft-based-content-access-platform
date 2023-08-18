@@ -175,7 +175,7 @@ Project Link: [https://github.com/sayuru-akash/nft-based-content-access-platform
 [license-url]: https://github.com/sayuru-akash/nft-based-content-access-platform/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/sayuruakash
-[product-screenshot]: images/screenshot.jpeg
+[product-screenshot]: images/screenshot.png
 
 <hr>
 
